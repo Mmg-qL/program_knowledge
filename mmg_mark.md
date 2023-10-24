@@ -16,6 +16,8 @@
    > * 挂起：等待除cpu外其他资源主动放弃cpu
    > * 停止:
 
+<img src="/home/gmm/下载/c++_programming/Linux进程4G图.png" alt="Linux进程4G图" style="zoom: 67%;" />
+
 
 3. fork函数
 
@@ -193,7 +195,194 @@
 
 
 
+#### 线程同步方式
 
+1. 互斥锁：
+2. 条件变量：
+3. 信号量：控制多个线程对共享资源的访问
+4. 自选锁：忙等待同步机制，线程不会休眠，而是不断检查锁是否可用
+
+
+
+#### 上下文切换
+
+> * 进程线程分时复用CPU时间片
+> * 在切换之前会将上一个任务的状态保存
+> * 下次切换回任务时候，加载这个状态运行
+> * 任务从保存到再次加载这个过程就是一次上下文切换
+
+
+
+#### 线程数目控制
+
+> * 文件IO操作：文件IO对CPU使用率不高，因此可以分时复用CPU时间片，线程个数=2*CPU核心数
+> * 处理复杂的算法（主要是CPU进行运算）
+
+
+
+#### 主线程sleep(3)
+
+> * 主线程挂起
+> * 放弃cpu资源
+
+
+
+#### 线程退出
+
+> * void pthread_exit(void *retval);
+> * 主线程退出不影响子线程运行
+
+
+
+#### 线程回收
+
+> * int pthread_join(pthread_t thread, void **retval);
+> * 一直等待子线程执行完毕并退出
+> * pthread_join()只要子线程不退出主线程就会一直被阻塞，主线程的任务不能执行
+> * 主线程回收子线程资源
+> * 每个join只能阻塞一个子线程
+
+
+
+#### 子线程传参
+
+```c
+struct Test{
+    int num;
+    int age;
+};
+//方法一
+//struct Test t;
+void *callback(void* arg){
+    for(int i = 0; i < 5; ++i){
+        printf("子线程：i == %d\n", i);
+    }
+    printf("子线程：%ld\n", pthread_self());
+
+    struct Test* t = (struct Test*)arg;
+    t->num = 100;
+    t->age = 16;
+    pthread_exit(t);
+    return NULL;
+}
+
+int main(){
+    struct Test t;
+    pthread_t tid;
+    pthread_create(&tid, NULL, callback, &t);
+    printf("主线程：%ld\n", pthread_self());
+	
+    //方法一
+    /*
+    void *ptr;
+    pthread_join(tid, &ptr);
+    struct Test* pt = (struct Test*)ptr;
+    printf("num:%d, age = %d\n", pt->num, pt->age);
+    */
+    
+    //方法二
+    void *ptr;
+    pthread_join(tid, &ptr);
+    printf("num:%d, age = %d\n", t.num, t.age);
+    return 0;
+}
+```
+
+
+
+#### 线程分离
+
+> * int pthread_detach(pthread_t thread);
+> * 子线程和主线程分离
+> * 子线程退出，其占用的内核资源被系统其他接管并回收了
+> * 线程分离之后在主线程中使用pthread_join回收不到子线程资源了
+
+
+
+#### 线程取消
+
+> * int pthread_cancel(pthread_t thread);
+> * 线程取消是在某些特定情况下在一个线程中杀死另一个线程
+> * 分为两步：1）线程A中调用线程取消函数pthread_cancel，指定杀死线程B；  2）在线程B中进行一次系统调用
+
+
+
+#### 线程同步
+
+> * 原因：数据没来得及从物理内存写入寄存器
+
+
+
+#### 互斥锁
+
+> * pthread_mutex_t mutex
+> * int pthread_mutex_init(pthread_mutex_t *restrict mutex, const pthread_mutexattr_t *restrict attr);
+> * int pthread_mutex_destroy(pthread_mutex_t  *mutex);
+> * int pthread_mutex_lock(pthread_mutex *mutex);
+> * int pthread_mutex_trylock(pthread_mutex_t *mutex);
+
+关于trylock，如果没有加锁，则加锁成功，如果已锁，调用这个函数加锁的线程，不会被阻塞，加锁失败直接返回错误信号
+
+
+
+#### 读写锁
+
+> * pthread_rwlock_t rwlock;
+> * int pthread_rwlock_init(pthread_rwlock *restrict rwlock, const pthread_rwlockattr_t *restrict attr);
+> * int pthread_rwlock_destroy(pthread_rwlock_t *rwlock);
+
+
+
+#### 条件变量
+
+处理生产者消费者模型，阻塞消费者线程，打开互斥锁，生产者抢到互斥锁，才能去生产
+
+
+
+#### 信号量
+
+用在多线程多任务同步的，一个线程完成了一个动作就通过信号量告诉别的线程，别的线程再进行某些动作，信号量不一定是锁定某个线程，而是流程上的概念。
+
+> * int sem_init(sem_t *sem, int pshared, unsigned int value);
+> * int sem_destroy(sem_t *sem);
+> * int sem_wait(sem_t *sem);
+
+
+
+#### 进程切换
+
+> * 保存上下文：进程状态，包含寄存器值，程序计数器，内存映射，文件描述符，PCB进程控制块
+> * 选择新进程：操作系统根据调度算法从就绪队列中选择下一个要运行的进程
+> * 加载新进程的上下文
+> * 切换内存映射表：不同进程有不同的地址空间
+
+
+
+#### PCB进程控制块
+
+> * 进程id
+> * 进程状态
+> * cpu寄存器
+
+
+
+#### 管道通信
+
+> * 本质是内核的缓冲区
+> * 由两个文件描述符引用，一个表示读端，一个表示写端
+> * 规定数据从管道的写端流入管道，从读端流出，环形队列
+> * 半双工通信，不可重复读写
+> * 只能在有血缘关系的进程间使用管道
+
+**读管道：**
+
+ 	1. 管道有数据：read返回实际读到的字节数 
+	2. 管道无数据：1）无写端，read返回0；2）有写端，read阻塞等待
+
+**写管道：**
+
+1. 无读端，异常终止。(SIGPIPE导致的)
+2. 有读端：1）管道已满，阻塞等待；2）管道未满，返回写出的字节个数
 
 ## 二、C++和C语言
 
@@ -314,8 +503,8 @@
       
       //1.获取原始指针操作
       Person* p = ptr5.get();
-      t->setAge(16);
-      t->print();
+      p->setAge(16);
+      p->print();
       
       //2.直接操作
       ptr5->setAge(16);
@@ -349,7 +538,18 @@
       ptr3->print();
       ```
 
-      
+
+
+
+#### 虚函数与多态
+
+<img src="/home/gmm/.config/Typora/typora-user-images/image-20230902193801064.png" alt="image-20230902193801064" style="zoom:33%;" />
+
+> * 父类子类都有一个虚函数表指针vptr指向各自的虚函数表
+> * 虚函数表vptl里面存放的是指针指向不同的虚函数
+> * 当子类重写父类虚函数时，虚函数表里面的指针就被替换为指向子类的虚函数
+
+
 
 #### 移动语义与完美转发
 
@@ -447,6 +647,156 @@
 > * char*声明一个指向字符指针；
 > * char[]声明一个字符数组，是一块连续的内存区域
 > * char*所指向可以变，char[]一旦声明后，内存和指向不能更改
+
+
+
+#### 指针数组与数组指针
+
+1. 指针数组
+
+```c
+//指针数组，相当于10个int*，int*, int*, int*.......
+int *p[10]; //or char*p[10]
+
+//用法
+char *names[] = {"Alice", "Bob", "Charlie", "David"};
+for (int i = 0; i < 4; i++) {
+    printf("Name: %s\n", names[i]);
+}
+```
+
+2. 数组指针
+
+   ```c
+   //数组指针，相当于10个int,int.......
+   int (*p)[10];//or char (*p)[10]
+   
+   //用法
+   int matrix[2][3] = {{1, 2, 3}, {4, 5, 6}};
+   int (*ptrToMatrix)[3] = matrix;
+   for (int i = 0; i < 2; i++) {
+       for (int j = 0; j < 3; j++) {
+           printf("%d ", ptrToMatrix[i][j]);
+       }
+       printf("\n");
+   }
+   ```
+
+3. 指针与数组
+
+```c
+//方法1
+char array[] = "Hello, world!";
+char *p = array;
+while(*p != '\0'){
+    cout << *p << endl; //输出Hello, world!
+    cout << p << endl;	//输出Hello, world!,ello, world!, .....!
+    p++;
+}
+return 0;
+
+//方法2
+int arr[] = {1, 2, 3, 4, 5};
+int *ptr = &arr[0]; // 使用取地址运算符
+```
+
+4. 指针与数组结构体
+
+```c
+typedef struct{
+  int a;
+  char ptr;
+}Point;
+
+int main(){
+
+  Point p1[2];
+  p1[0].a = 10;
+  p1[0].ptr = 'A';
+  p1[1].a = 20;
+  p1[1].ptr = 'B';
+
+  Point *pointer = p1;	//or Point *pointer = &p1[0];
+  int count = 2;
+  while(count--){
+    cout << "a: " << pointer->a << " ptr: " << pointer->ptr << endl;
+    //or cout << (*pointer).a << (*pointer).ptr << endl;
+    //error: *pointer.a
+    pointer++;
+  }
+
+  return 0;
+}
+
+-------------------------------------------------------------------
+void test01(){
+	int array[] = {2, 2, 3, 11, 5};
+	int *p = array;
+	for(int i = 0; i < 5; ++i){
+		cout << "Address of pointer ptr: " << &p << endl;
+		// cout << "*p++: " << *p++ << endl;	//2, 2, 3, 11, 5
+		//cout << " (*p)++: " << (*p)++ << endl;	//2, 3, 4, 5
+		cout << " (*p)++: " << *(p++) << endl;		//2, 2, 3, 11, 5
+	}
+}
+```
+
+
+
+#### C语言中的struct结构体
+
+1. 字节对齐
+
+```c
+//struct结构体在c语言中所占用内存
+struct status{
+    char name[20];		//24byte,   20byte padding 4byte;
+    unsigned int *ptr;	//8byte
+    char tel[15];		//15byte
+    char sex;			//1byte
+};
+
+//1.找到最大的变量所占用的内存a，并且检查是否为内存基本单位的整数倍，如果不是进行补齐
+//2.将其他变量按照a的整数倍进行排列
+
+//例：64位操作系统中
+struct test01{
+    int a;  //4byte
+    short b;    //2byte
+    char c;     //2byte padding 1byte
+    unsigned int *d;    //最大8byte
+    char e;     //e和f公用8byte
+    short f;
+};
+```
+
+2. pragram pack
+
+   > * 告诉编译器以指定的字节对齐方式来分配结构体内存
+   > * 例如使用#pragma pack(1)指令将内存对齐方式设置为最小1字节对齐
+   > * 某些硬件架构要求特定的对齐方式获得最佳性能，使用非标准的对齐方式可能会使得代码不可以移植
+
+3. 字节拼接
+
+```c
+//Timestamp-us
+/* utc时间 单位 微秒 */
+//小端排列
+long timestamp1 = tv.tv_sec*1000*1000 + tv.tv_usec;
+packet[18] = (timestamp1) & 255;	//低
+packet[19] = (timestamp1>>8) & 255;
+packet[20] = (timestamp1>>16) & 255;
+packet[21] = (timestamp1>>24) & 255; //高
+```
+
+
+
+#### Union结构体
+
+> * 不同数据成员共享同一块内存
+> * 修改一个变量也会影响另一个变量
+> * struct结构体里面的变量是相对独立的
+> * 联合体的大小至少是最大成员大小，当最大成员大小不是最大对齐数整数倍的时候，就要对齐到最大对齐数的整数倍
 
 
 
@@ -592,34 +942,6 @@ int *const p = &x;	//不能修改指针的指向
 
 
 
-
-#### C语言中的struct结构体
-
-```c
-//struct结构体在c语言中所占用内存
-struct status{
-    char name[20];		//24byte,   20byte padding 4byte;
-    unsigned int *ptr;	//8byte
-    char tel[15];		//15byte
-    char sex;			//1byte
-};
-
-//1.找到最大的变量所占用的内存a，并且检查是否为内存基本单位的整数倍，如果不是进行补齐
-//2.将其他变量按照a的整数倍进行排列
-
-//例：64位操作系统中
-struct test01{
-    int a;  //4byte
-    short b;    //2byte
-    char c;     //2byte padding 1byte
-    unsigned int *d;    //最大8byte
-    char e;     //e和f公用8byte
-    short f;
-};
-```
-
-
-
 #### OSI七层模型
 
 1. **物理层**：建立、维护及断开物理连接
@@ -658,18 +980,64 @@ struct test01{
 
 
 
+#### 查看socket编程的ip和端口状态
 
+> * netstat
+> * ss -tuln
 
 ## 四、调试相关
 
 #### Autoware
 
-1. lidar_point_pillars启动
+1. **lidar_point_pillars启动**
 
    > * cd /usr/file/autoware.ai/install
    > * source setup.bash
    > * 修改rosbag包以及话题的名称
    > * 打开之后修改rviz的frame
+
+2. **autoware_msgs::DetectedObjectArray**
+
+   > * header:消息时间戳、帧ID等信息，时间同步和数据标识
+   > * objects:包含多个autoware_msgs::DetctedObject对象数组
+   >   		* header
+   >     		* id
+   >         		* label
+   >         		* pose
+   >                  		* velocity
+
+3. **autoware_msgs::DetectedObject**
+
+   用于表示检测到物体信息的ROS消息类型
+
+   > * header:消息的时间戳、帧ID
+   > * id：物体的唯一标识符
+   > * label：物体标签
+   > * socre：检测置信度
+   > * pose：位置姿态，通常以三维坐标和姿态形式表示
+   > * dimensions：尺寸
+   > * velocity：线速度和角速度
+   > * accleration：线加速度和角加速度
+   > * cloud：点云信息
+   > * convex_hull：通常包括凸包的顶点坐标，用于描述物体的轮廓。
+
+4. **tf::StampedTransform**
+
+用于监听并查询这个类型的变换消息，包含两个坐标系之间的变换关系，包括旋转和平移。此外还包含时间戳信息，用于表示变换时间
+
+```c++
+tf::TransformListener listener;
+tf::StampedTransform transform;
+try {
+    listener.lookupTransform("odom", "base_link", ros::Time(0), transform);
+    // 查询成功，可以使用 transform 获取变换信息
+} catch (tf::TransformException &ex) {
+    ROS_ERROR("%s", ex.what());
+}
+//在上述示例中，我们尝试查询从 "odom" 到 "base_link" 坐标系的变换信息，并将结果存储在 transform 中。如果查询失败，将会抛出 tf::TransformException 异常。
+```
+
+
 
 
 
@@ -701,6 +1069,12 @@ struct test01{
 > * 修改fixed_frame 为laser_link
 
 
+
+#### Linux环境下的pthread编程
+
+1. 编译
+
+   > * g++ test.cpp -o t_exe -lpthread
 
 
 
@@ -734,3 +1108,272 @@ struct test01{
 1. 话题通信
 2. 服务通信
 3. 参数服务器
+
+
+
+#### 激光雷达目标检测
+
+1. 体素分割->重新拼接->张量投影到二维平面->作一个类似于Poinpillars的2D伪图像
+2. 降采样->升维
+3. 类似SSD的检测头设置 ->设置IoU阈值
+
+
+
+#### 感知融合
+
+3D检测框信息投影到2D平面，计算IoU，如果超过一定阈值则进行匹配，这个匹配的检测框被赋予二维相机检测的属性
+
+
+
+#### 跟踪算法
+
+>UKF：本质是对非线性卡尔曼滤波的线性化，利用SigmaPoint去拟合；比如我用的是5维的状态向量分别是x,y,v,w,w'；通过SigmaPoint去拟合非线性，就得到11维度的SigmaPoint；再去求一步预测，进而求加权平均；再去求先验估计协方差和新息协方差；后验估计以及逐步递推；
+>
+>IMM：交互式多模型卡尔曼滤波；使用一种系统动态模型的卡尔曼滤波器对于多种运动状态的跟踪预测不匹配；比如我有两个状态对应两个滤波器，模型之间有一个2x2的转移矩阵；分别去求他们的权重，不断更新；再去加权求卡尔曼滤波；
+>
+>PDA算法：在实际的卡尔曼滤波中有预测的轨迹和我量测的轨迹，交杂在一起，这个算法的主要目的是判定轨迹关联，除了这个算法还有KNN算法，基于马氏距离的判定，JPDA, CJPDA。为每个有效量测计算一个概率，并结合新息计算出最优量测。
+
+
+
+## 六、算法相关
+
+#### UKF算法
+
+1. 求sigma point
+
+2. 将得到的sigma point乘相应的状态转移矩阵
+
+3. 乘相应的权重得到均值，协方差
+
+4. 根据预测值再求sigma point
+
+5. 带入观测方程
+
+6. 乘以相应的权重得到均值，协方差
+
+7. 利用最终预测值进行卡尔曼更新
+
+   
+
+#### IMM算法
+
+核心思想：一个模型对应一个卡尔曼滤波器，多个卡尔曼滤波器并行运行，每个滤波器的滤波值和滤波器的概率进行加权，得到最终输出。
+
+> 1. 假设IMM算法中使用了两个滤波器，滤波器1的概率为0.8，滤波器2的概率为0.2，马尔科夫转移矩阵为：
+>
+> $$
+> \mu_1=0.8, \mu_2=0.2\\
+> 
+> P = \left[
+> \matrix{
+>   0.98 & 0.02\\
+>   0.02 & 0.98\\
+> }
+> \right]
+> $$
+>
+> 2. 滤波器1经过状态转移之后由两部分组成，滤波器1的预测概率为：
+>
+> $$
+> P_{00}\cdot\mu_1 + P_{10}\cdot\mu_2=0.98*0.8+0.02*0.2=0.788
+> $$
+>
+> 3. 模型的混合概率指的是模型i到模型j预测概率过程中，模型i贡献了多少权重
+>
+>    
+>
+> 4. 因此对应上面，模型0到0的混合概率为：
+>
+> $$
+> \lambda_{00}=(P_{00}\cdot\mu_1)/0.784=0.99492
+> $$
+>
+> 5. 模型1到0的混合概率为：
+>
+>
+> $$
+> \lambda_{10}=(P_{10}\cdot\mu_2)/0.784=0.005076
+> $$
+>
+
+然后将得到的混合概率与不同卡尔曼滤波的预测值相乘计算均值和协方差
+
+
+
+#### 数据关联算法
+
+> * KNN算法：计算简单，缺点是多回波环境下离目标预测位置最近的候选回波不一定是目标的真实回波，适用于稀疏回波环境中跟踪非机动目标回波。
+>
+> * PDA算法：考虑了落入相关波门内的所有候选回波，并且根据不同的相关情况计算出各回波来自目标的概率，利用这些概率值；
+
+
+
+
+
+## 七、代码
+
+#### 链表代码
+
+```c++
+#include <iostream>
+#include <string.h>
+#include <vector>
+#include <eigen3/Eigen/Dense>
+#include <algorithm>
+using namespace std;
+
+struct ListNode{
+	ListNode* next;
+	int val;
+	ListNode():val(0), next(nullptr){}
+	ListNode(int x):val(x), next(nullptr){}
+};
+
+class MyList{
+public:
+	MyList(){
+		_head = new ListNode(0);
+		_size = 0;
+	}
+
+	//头插法
+	void addAtHead(int val){
+		ListNode* newNode = new ListNode(val);
+		newNode->next = _head->next;
+		_head->next = newNode;
+		_size++;
+	}
+
+	void addAtTail(int val){
+		ListNode* newNode = new ListNode(val);
+		ListNode* cur = _head;
+		while(cur->next != nullptr){
+			cur = cur->next;
+		}
+		cur->next = newNode;
+		_size++;
+	}
+
+	ListNode* getHead() const{
+		return _head;
+	}
+
+	//反转整个链表
+	ListNode* reverseList(ListNode* node){
+		ListNode* pre = nullptr;
+		ListNode* cur = node;
+		while(cur){
+			ListNode* tmp = cur->next;
+			cur->next = pre;
+
+			pre = cur;
+			cur = tmp;
+		}
+		return pre;
+	}
+
+	//打印链表
+	void printList(ListNode* node){
+		ListNode* cur = node;
+		while(cur != nullptr){
+			if(cur->next == nullptr){
+				cout << cur->val << endl;
+			}else{
+				cout << cur->val << "->";
+			}
+			cur = cur->next;
+		}
+	}
+
+	//两两反转
+	ListNode* swapPairs(ListNode* head){
+		ListNode* cur = head;
+		while(cur->next && cur->next->next){
+			ListNode* tmp1 = cur->next;
+			ListNode* tmp2 = cur->next->next->next;
+
+			cur->next = cur->next->next;
+			cur->next->next = tmp1;
+			cur->next->next->next = tmp2;
+
+			cur = cur->next->next;
+		}
+		return head->next;
+	}
+
+	//删除链表倒数第n个节点
+	ListNode* removeNthFromEnd(ListNode* head, int n){
+		ListNode* fast = head;
+		ListNode* slow = head;
+		while(n-- && fast){
+			fast = fast->next;
+		}
+		while(slow->next && fast->next){
+			fast = fast->next;
+			slow = slow->next;
+		}
+		ListNode* tmp = slow->next;
+		slow->next = slow->next->next;
+		delete tmp;
+		return head->next;
+	}
+
+	//环型链表
+	ListNode* detectCycle(ListNode* head){
+		ListNode* fast = head;
+		ListNode* slow = head;
+		while(fast && fast->next){
+			fast = fast->next->next;
+			slow = slow->next;
+			if(fast->val == slow->val){
+				ListNode* cur1 = fast;
+				ListNode* cur2 = head;
+				while(cur1->val != cur2->val){
+					cur1 = cur1->next;
+					cur2 = cur2->next;
+				}
+				return cur1;
+			}	
+		}
+		return NULL;
+	}
+
+private:
+	ListNode* _head;
+	int _size;
+};
+
+
+int main(){
+	MyList *A = new MyList();
+
+	A->addAtHead(1);
+	A->addAtTail(4);
+	A->addAtTail(5);
+	A->addAtTail(8);
+	A->addAtTail(7);
+
+	cout << "Before List: " << endl;
+	A->printList(A->getHead()->next);
+
+	// cout << "After reverse: " << endl;
+	// ListNode* reverseHead = A->reverseList(A->getHead()->next);
+	// A->printList(reverseHead);
+
+	ListNode* swapList = A->swapPairs(A->getHead());
+	A->printList(swapList);
+
+	// ListNode* removeList = A->removeNthFromEnd(A->getHead(), 2);
+	// A->printList(removeList);
+
+	delete A;
+	return 0;
+}
+```
+
+
+
+#### 华测导航
+
+> * 为什么投华测？离家近，师兄在里面，实验室合作项目
+> * 为什么不去经纬恒润？家在上海，南京可以转正我拒绝了，之前一直在等华测官网开
