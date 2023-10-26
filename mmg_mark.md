@@ -1039,6 +1039,30 @@ try {
 
 
 
+#### ZED相机驱动安装
+
+```c
+1. 官网下载相应的.run文件
+2.  chmod +x abc.run
+3. ./abc.run
+4. python 
+5. import pyzed检查能否成功导入
+6. cd /usr/local/zed/tools
+7. ./ZED_Explorer 
+8../ZED_Depth_Viewer
+9. mkdir ~/catkin_ws/src
+10. cd catkin_ws/src
+11. catkin_init_workspace
+12. cd ..
+13. catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3
+14. git clone --recursive https://github.com/stereolabs/zed-ros-wrapper.git
+15. cd ..
+16. rosdep install --from-paths src --ignore-src -r -y
+17. catkin_make -DPYTHON_EXECUTABLE=/usr/bin/python3 -DCMAKE_BUILD_TYPE=Release
+18. source devel/setup.bash
+19. roslaunch zed_wrapper zed.launch
+```
+
 
 
 #### 调试编译bug
@@ -1078,7 +1102,7 @@ try {
 
 
 
-## 五、ROS
+## 五、ROS&&CV
 
 #### 句柄
 
@@ -1111,6 +1135,272 @@ try {
 
 
 
+#### roslaunch
+
+launch文件
+
+> * node pkg : 对应功能包的名称
+> * type：节点对应的可执行文件名
+> * name：运行时显示的节点名称
+
+
+
+#### ros::spin()
+
+主要作用是使节点保持运行，处理ROS消息和回调函数。
+
+在`ros::spin()`开始运行后，节点会保持活动状态，处理消息，并执行回调函数，直到节点被显式地关闭或终止。通常，`ros::spin()`函数在节点的`main`函数中调用，以确保节点持续运行并处理消息，直到用户决定关闭节点。
+
+
+
+#### message_filters::Subscriber
+
+> * 用于ROS节点中订阅消息并提供时间同步的功能；当消息到达消息过滤器的时候，不会立即输出，而是在稍后的时间点里满足一定条件下输出；
+> * 本质是消息缓冲区来存储来自不同消息话题的消息。每个缓冲区用于存储一个消息话题的消息队列。
+> * 当 `message_filters::Synchronizer` 接收到来自不同消息话题的消息时，它会记录每个消息的时间戳。时间戳被用来确定消息之间的时间差。
+> * 为每个消息话题设置一个时间窗口。时间窗口是一个时间间隔，例如10毫秒。如果消息的时间戳在时间窗口内，它们将被认为是同步的。
+
+
+
+```c++
+#include <ros/ros.h>
+#include <message_filters/subscriber.h>
+#include <message_filters/synchronizer.h>
+#include <message_filters/sync_policies/approximate_time.h>
+#include <sensor_msgs/Image.h>
+#include <sensor_msgs/Imu>
+
+void callback(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::ImuConstPtr& imu_msg) {
+    // 在这里执行时间同步的处理逻辑
+}
+
+int main(int argc, char** argv) {
+    ros::init(argc, argv, "synced_node");
+    ros::NodeHandle nh;
+
+    // 创建两个消息订阅者
+    message_filters::Subscriber<sensor_msgs::Image> image_sub(nh, "/image_topic", 1);
+    message_filters::Subscriber<sensor_msgs::Imu> imu_sub(nh, "/imu_topic", 1);
+
+    // 定义时间同步策略
+    typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Imu> MySyncPolicy;
+    message_filters::Synchronizer<MySyncPolicy> sync(MySyncPolicy(10), image_sub, imu_sub);
+
+    // 设置回调函数
+    sync.registerCallback(boost::bind(&callback, _1, _2));
+
+    ros::spin();
+    return 0;
+}
+
+```
+
+
+
+#### cv::FileStorage
+
+OpenCV库中的一个类，用于在磁盘上读写和处理文件，主要用于配置参数文件
+
+```c++
+//1
+cv::FileStorage fs("config.yml", cv::FileStorage::WRITE);
+if (fs.isOpened()) {
+    fs << "param1" << 42;
+    fs << "param2" << 3.14;
+    fs << "param3" << "Hello, OpenCV";
+    fs.release(); // 保存并关闭文件
+}
+
+cv::FileStorage fs2("config.yml", cv::FileStorage::READ);
+if (fs2.isOpened()) {
+    int param1;
+    double param2;
+    std::string param3;
+    fs2["param1"] >> param1;
+    fs2["param2"] >> param2;
+    fs2["param3"] >> param3;
+    fs2.release(); // 关闭文件
+
+    // 使用加载的参数
+    std::cout << "param1: " << param1 << std::endl;
+    std::cout << "param2: " << param2 << std::endl;
+    std::cout << "param3: " << param3 << std::endl;
+}
+
+//2
+std::string str_initial_file = pkg_loc + "/cfg/initial_params.yaml";
+
+cv::FileStorage fs(str_initial_file, cv::FileStorage::READ | cv::FileStorage::FORMAT_YAML);
+if (!fs.isOpened())
+{
+    std::cout << " [ " + str_initial_file + " ] 文件打开失败" << std::endl;
+    return 0;
+}
+
+i_params.camera_topic = std::string(fs["image_topic"]);
+i_params.lidar_topic = std::string(fs["pointcloud_topic"]);
+i_params.fisheye_model = int(fs["distortion_model"]);
+i_params.lidar_ring_count = fs["scan_line"];
+i_params.grid_size = std::make_pair(int(fs["chessboard"]["length"]), int(fs["chessboard"]["width"]));
+i_params.square_length = fs["chessboard"]["grid_size"];
+i_params.board_dimension = std::make_pair(int(fs["board_dimension"]["length"]), int(fs["board_dimension"]["width"]));
+i_params.cb_translation_error = std::make_pair(int(fs["translation_error"]["length"]), int(fs["translation_error"]["width"]));
+fs["camera_matrix"] >> i_params.cameramat;
+i_params.distcoeff_num = 5;
+fs["distortion_coefficients"] >> i_params.distcoeff;
+
+i_params.image_size = std::make_pair(int(fs["image_pixel"]["width"]), int(fs["image_pixel"]["height"]));
+
+//3
+void Write_XML(){
+	cv::FileStorage fs("test.yml", cv::FileStorage::WRITE);
+	fs << "frameCount" << 5;
+	time_t rawTime;
+	time(&rawTime);
+	fs << "calibrationDate" << asctime(localtime(&rawTime));
+ 
+	cv::Mat cameraMaterix = (cv::Mat_<double>(3, 3) << 1000, 0, 320, 0, 1000, 240, 0, 0, 1);
+	cv::Mat distCoeffs = (
+		cv::Mat_<double>(5, 1)
+		<< 0.1, 0.01, -0.001, 0, 0
+		);
+	fs << "cameraMatrix" << cameraMaterix << "distCoeffs" << distCoeffs;
+ 
+	fs << "features" << "[";
+	for (int i = 0; i < 3; i++){
+		int x = rand() % 640;
+		int y = rand() % 480;
+		uchar lbp = rand() % 256;
+		fs << "{:" << "x" << x << "y" << y << "lbp" << "[:";
+		for (int j = 0; j < 8; j++){
+			fs << ((lbp >> j) & 1);
+		}
+		fs << "]" << "}";
+	}
+	fs << "]";
+	fs.release();
+}
+ 
+void Read_XML(){
+	cv::FileStorage fs("test.yml", cv::FileStorage::READ);
+	
+	// 直接进行数据转换
+	int frameCount = (int)fs["frameCount"];
+ 
+	// 使用操作符 >> 转换
+	std::string date;
+	fs["calibrationDate"] >> date;
+	cv::Mat cameraMatrix, distCoeffs;
+	fs["cameraMatrix"] >> cameraMatrix;
+	fs["distCoeffs"] >> distCoeffs;
+ 
+	std::cout << "frameCount:" << frameCount << std::endl
+		<< "calibration date:" << date << std::endl
+		<< "camera matrix:	" << cameraMatrix << std::endl
+		<< "distortion coeffs: " << distCoeffs << std::endl;
+ 
+	cv::FileNode features = fs["features"];
+	cv::FileNodeIterator it = features.begin(), it_end = features.end();
+	int idx = 0;
+	std::vector<uchar> lbpval;
+	 // 遍历一个sequence
+	for (; it != it_end; ++it, idx++){
+		std::cout << "feature #" << idx << ":";
+		std::cout << "x=" << (int)(*it)["x"]
+			<< ", y=" << (int)(*it)["y"]
+			<< ", lbp:(";
+		// 使用cv::FileNode >> std::vector读取数组
+		(*it)["lbp"] >> lbpval;
+		for (int i = 0; i < (int)lbpval.size(); i++){
+			std::cout << " " << (int)lbpval[i];
+		}
+		std::cout << ")" << std::endl;
+	}
+	fs.release();
+}
+```
+
+<img src="/home/gmm/.config/Typora/typora-user-images/image-20231026101638281.png" alt="image-20231026101638281" style="zoom:50%;" />
+
+
+
+#### cv_bridge::CvImagePtr
+
+用于在ROS和OpenCV之间的图像数据转换和传递
+
+```c++
+#include <ros/ros.h>
+#include <sensor_msgs/Image.h>
+#include <cv_bridge/cv_bridge.h>
+#include <opencv2/opencv.hpp>
+
+void imageCallback(const sensor_msgs::Image::ConstPtr& msg) {
+    try {
+        cv_bridge::CvImagePtr cv_ptr = cv_bridge::toCvCopy(msg, sensor_msgs::image_encodings::BGR8);
+
+        // 访问OpenCV图像数据
+        cv::Mat image = cv_ptr->image;
+
+        // 在这里进行图像处理
+    } catch (cv_bridge::Exception& e) {
+        ROS_ERROR("cv_bridge exception: %s", e.what());
+    }
+}
+
+int main(int argc, char** argv) {
+    ros::init(argc, argv, "image_processing_node");
+    ros::NodeHandle nh;
+
+    ros::Subscriber sub = nh.subscribe("/image_topic", 1, imageCallback);
+
+    ros::spin();
+    return 0;
+}
+```
+
+
+
+#### cv::Mat
+
+* 创建cv::Mat对象
+
+```c++
+cv::Mat image(rows, cols, type);
+cv::Mat image(rows, cols, type, data);
+```
+
+* 图像读取与显示
+
+```c++
+cv::Mat image = cv::imread("image.jpg");
+cv::imshow("Window Name", image);
+```
+
+* 图像保存
+
+```c++
+cv::imwrite("output.jpg", image);
+```
+
+* 图像剪裁与复制
+
+```c++
+cv::Mat subImage = image(cv::Rect(x, y, width, height));
+cv::Mat copy = image.clone();
+```
+
+* 绘制图像
+
+```c
+cv::putText(image, "Hello, OpenCV", cv::Point(x, y), cv::FONT_HERSHEY_SIMPLEX, fontSize, cv::Scalar(255, 0, 0), thickness);
+cv::line(image, startPoint, endPoint, cv::Scalar(0, 255, 0), thickness);
+cv::rectangle(image, topLeft, bottomRight, cv::Scalar(0, 0, 255), thickness);
+```
+
+
+
+## 六、算法相关
+
 #### 激光雷达目标检测
 
 1. 体素分割->重新拼接->张量投影到二维平面->作一个类似于Poinpillars的2D伪图像
@@ -1132,10 +1422,6 @@ try {
 >IMM：交互式多模型卡尔曼滤波；使用一种系统动态模型的卡尔曼滤波器对于多种运动状态的跟踪预测不匹配；比如我有两个状态对应两个滤波器，模型之间有一个2x2的转移矩阵；分别去求他们的权重，不断更新；再去加权求卡尔曼滤波；
 >
 >PDA算法：在实际的卡尔曼滤波中有预测的轨迹和我量测的轨迹，交杂在一起，这个算法的主要目的是判定轨迹关联，除了这个算法还有KNN算法，基于马氏距离的判定，JPDA, CJPDA。为每个有效量测计算一个概率，并结合新息计算出最优量测。
-
-
-
-## 六、算法相关
 
 #### UKF算法
 
