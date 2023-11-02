@@ -1102,6 +1102,11 @@ try {
 
 
 
+#### 调试定位问题
+
+> * 打印log信息定位代码在哪一行出错
+> * 监控相应的传感器信息
+
 ## 五、ROS&&CV
 
 #### 句柄
@@ -1125,7 +1130,13 @@ try {
    private_nh.param("my_parameter", my_param, 42);
    ```
 
-   
+
+3. 其他句柄
+   * getNodeHandle：获取一个节点的全局节点句柄
+   * getPrivateNodeHandle：获取一个节点的私有节点句柄
+   * getMTPrivateNodeHandle：多线程环境中创建私有节点句柄
+
+
 
 #### ROS通信方式
 
@@ -1145,11 +1156,55 @@ launch文件
 
 
 
+#### ros启动多个launch文件
+
+* 写shell脚本
+* 创建一个组合launch文件
+
+你可以创建一个新的 launch 文件，用来同时启动多个其他的 launch 文件。在这个组合的 launch 文件中，你可以使用 `<include>` 标签来引用其他的 launch 文件。例如：
+
+```xml
+<launch>
+  <include file="$(find yourpackage_name)/launch/launch_file1.launch"/>
+  <include file="$(find yourpackage_name)/launch/launch_file2.launch"/>
+</launch>
+
+```
+
+然后，你可以使用 `roslaunch` 命令来启动这个组合的 launch 文件：
+
+```shell
+roslaunch package_name combined_launch_file.launch
+```
+
+
+
+
+
 #### ros::spin()
 
 主要作用是使节点保持运行，处理ROS消息和回调函数。
 
 在`ros::spin()`开始运行后，节点会保持活动状态，处理消息，并执行回调函数，直到节点被显式地关闭或终止。通常，`ros::spin()`函数在节点的`main`函数中调用，以确保节点持续运行并处理消息，直到用户决定关闭节点。
+
+
+
+#### visualization_msgs::Marker
+
+ROS中用于可视化目的的消息类型之一，通常用于在可视化工具中绘制3D场景中的各种标记，如点、线、箭头、文本等；这些标记可以用于显示传感器数据、路径规划、物体追踪以及其他机器人感知和控制任务。
+
+> 1. **header**: 用于指定消息的时间戳和坐标系信息。
+> 2. **ns (namespace)**: 命名空间，用于将不同标记进行分组，有助于组织可视化元素。
+> 3. **id**: 每个标记的唯一标识符，用于区分同一命名空间中的不同标记。
+> 4. **type**: 标记的类型，可以是诸如点、线、箭头、立方体、球体等不同的标记类型。
+> 5. **action**: 指定如何处理标记，可以是添加、修改、删除等。
+> 6. **pose**: 标记的姿态信息，通常指定了标记的位置和方向。
+> 7. **scale**: 缩放因子，用于调整标记的大小。
+> 8. **color**: 标记的颜色，通常使用RGBA格式来指定颜色和透明度。
+> 9. **lifetime**: 标记的寿命，指定了标记在场景中存在的时间。
+> 10. **frame_locked**: 一个布尔值，用于指定标记的姿态是否与坐标系锁定。
+> 11. **points**: 对于某些标记类型，如线条和箭头，这个字段包含了标记的几何形状的定义。
+> 12. **text**: 如果标记类型是文本，这个字段包含了文本的内容。
 
 
 
@@ -1396,6 +1451,18 @@ cv::putText(image, "Hello, OpenCV", cv::Point(x, y), cv::FONT_HERSHEY_SIMPLEX, f
 cv::line(image, startPoint, endPoint, cv::Scalar(0, 255, 0), thickness);
 cv::rectangle(image, topLeft, bottomRight, cv::Scalar(0, 0, 255), thickness);
 ```
+
+* 赋值方式
+
+> Mat a(3, 3, CV_8UC1);
+>
+> Mat b(Size(4, 4), CV_8UC1);
+>
+> Mat c0(5, 5, CV_8UC1, Scalar(4, 5, 6))
+>
+> Mat d = (cv::Mat_<int>(1, 5) << 1, 2, 3, 4, 5)
+
+
 
 
 
