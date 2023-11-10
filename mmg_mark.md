@@ -1168,7 +1168,6 @@ launch文件
   <include file="$(find yourpackage_name)/launch/launch_file1.launch"/>
   <include file="$(find yourpackage_name)/launch/launch_file2.launch"/>
 </launch>
-
 ```
 
 然后，你可以使用 `roslaunch` 命令来启动这个组合的 launch 文件：
@@ -1249,6 +1248,15 @@ int main(int argc, char** argv) {
 }
 
 ```
+
+
+
+#### message_filters中的时间同步问题
+
+* 对齐时间戳有两种方式，一种是时间戳完全对齐 ：**ExactTime Policy** ，另一种是时间戳相近：**ApproximateTime Policy**
+
+* 两个传感器时间戳必须格式一致，否则进入不了回调函数
+* 例如lslidar与相机调试中的时间同步，lslidar时间戳不更新，或者相机时间戳中断
 
 
 
