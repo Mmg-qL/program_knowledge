@@ -1039,6 +1039,28 @@ try {
 
 
 
+#### Autoware相机与雷达检测程序启动
+
+```shell
+#rosbag播放
+rosbag play -l kitti_2011_10_03_drive_0047_synced.bag /kitti/camera_color_left/image_raw:=/image_raw /kitti/velo/pointcloud:=/points_raw
+    
+ rosbag play -l /usr/file/autoware.ai/src/autoware/rosbag/kitti_2011_10_03_drive_0047_synced.bag /kitti/velo/pointcloud:=/points_raw
+    
+ rosbag play -l CADCD_2019_02_27_seq_0051 /cadcd/velo/pointcloud:=/points_raw /cadcd/2019_02_27/0051/camera_00/image_raw:=/image_raw
+ 
+ #编译
+ AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3
+ 
+ #roslaunch包
+roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/file/autoware.ai/src/autoware/core_perception/lidar_point_pillars/test/data/kitti_pretrained_point_pillars/pfe.onnx rpn_onnx_file:=/usr/file/autoware.ai/src/autoware/core_perception/lidar_point_pillars/test/data/kitti_pretrained_point_pillars/rpn.onnx
+
+```
+
+
+
+
+
 #### ZED相机驱动安装
 
 ```c
