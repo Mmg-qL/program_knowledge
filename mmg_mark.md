@@ -985,6 +985,23 @@ int *const p = &x;	//不能修改指针的指向
 > * netstat
 > * ss -tuln
 
+
+
+#### Github配置
+
+```shell
+1.git config --global user.name "Mmg-qL"
+2.git config --global user.email "gmm782470390@163.com"
+3.cd ~/.ssh
+4.ssh-keygen -t rsa -C "gmm782470390@163.com"
+5.将Enter file in which xxx: id_rsa；其他一直enter
+6.cat id_rsa.pub
+7.打开Github中的SSH and GPG keys
+8.添加密钥输入，并将生成的ssh-key粘贴
+```
+
+
+
 ## 四、调试相关
 
 #### Autoware
@@ -1002,8 +1019,8 @@ int *const p = &x;	//不能修改指针的指向
    > * objects:包含多个autoware_msgs::DetctedObject对象数组
    >   		* header
    >     		* id
-   >         		* label
-   >         		* pose
+   >        			* label
+   >        			* pose
    >                  		* velocity
 
 3. **autoware_msgs::DetectedObject**
