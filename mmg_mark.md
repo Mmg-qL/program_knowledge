@@ -1,6 +1,6 @@
 
 
-## 一、Linux内核
+## Linux内核
 
 #### 进程与线程
 
@@ -384,7 +384,7 @@ int main(){
 1. 无读端，异常终止。(SIGPIPE导致的)
 2. 有读端：1）管道已满，阻塞等待；2）管道未满，返回写出的字节个数
 
-## 二、C++和C语言
+## C++和C语言
 
 #### C++内存分区
 
@@ -902,7 +902,7 @@ int *const p = &x;	//不能修改指针的指向
 
 
 
-## 三、计算机网络
+## 计算机网络
 
 #### UDP通信
 
@@ -1002,7 +1002,7 @@ int *const p = &x;	//不能修改指针的指向
 
 
 
-## 四、调试相关
+## 调试相关
 
 #### Autoware
 
@@ -1146,7 +1146,7 @@ roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/fil
 > * 打印log信息定位代码在哪一行出错
 > * 监控相应的传感器信息
 
-## 五、ROS&&CV
+## ROS&&CV
 
 #### 句柄
 
@@ -1609,7 +1609,40 @@ $$
 
 
 
-## 六、算法相关
+## 算法相关
+
+#### 深度学习
+
+* 卷积
+
+![1700487834993](C:\Users\GMM\AppData\Local\Temp\1700487834993.png)
+
+![1700488909207](C:\Users\GMM\AppData\Local\Temp\1700488909207.png)
+
+```shell
+1. 将卷积核映射到图像上，然后逐个相乘累加的运算
+2. 注意卷积操作的位置，右边最后一列从下往上数对应映射第一行卷积参数
+3. nxn的图像采用fxf的卷积和得到(n-f+1)x(n-f+1)图像
+```
+
+* 填充
+
+```shell
+1.为了使边缘信息不丢失
+2.为了使卷积之后图像仍然为原来大小
+3.若卷积之后仍为原来大小则填充层为p = (f-1)/2
+```
+
+* 步长
+
+```
+1.步长s影响最后输出为：(n+2p-f)/s + 1
+2.如果不能除整，则向下取整
+```
+
+
+
+
 
 #### 激光雷达目标检测
 
@@ -1635,21 +1668,21 @@ $$
 
 #### UKF算法
 
+```shell
 1. 求sigma point
-
-2. 将得到的sigma point乘相应的状态转移矩阵
-
+2. 将得到的sigma point乘相应的状态转移矩阵生成预测值
 3. 乘相应的权重得到均值，协方差
-
 4. 根据预测值再求sigma point
-
 5. 带入观测方程
-
 6. 乘以相应的权重得到均值，协方差
-
 7. 利用最终预测值进行卡尔曼更新
 
-   
+参考链接：
+* https://zhuanlan.zhihu.com/p/482392082
+* https://blog.csdn.net/weixin_42905141/article/details/99710297?ops_request_misc=&request_id=&biz_id=102&utm_term=UKF&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-1-99710297.142^v96^pc_search_result_base5&spm=1018.2226.3001.4187
+```
+
+
 
 #### IMM算法
 
@@ -1704,9 +1737,7 @@ $$
 
 
 
-
-
-## 七、代码
+## 代码
 
 #### 链表代码
 
