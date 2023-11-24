@@ -1237,6 +1237,29 @@ roslaunch package_name combined_launch_file.launch
 1. 允许ROS节点订阅和监听来自tf广播器（tf broadcaster）发布的坐标变换信息。它可以接收并缓存来自不同坐标系的变换关系，并提供查询接口，以便在节点中获取不同坐标系之间的变换关系
 2. lookupTransform() 方法用于查询两个坐标系之间的变换关系
 3. 可以通过订阅frame_id来查询tf
+
+例如：
+
+tf::StampedTransform
+ROSRangeVisionFusionApp::FindTransform(const std::string &in_target_frame, const std::string &in_source_frame)
+{
+  tf::StampedTransform transform;
+
+  ROS_INFO("%s - > %s", in_source_frame.c_str(), in_target_frame.c_str());
+  camera_lidar_tf_ok_ = false;
+  try
+  {
+    transform_listener_->lookupTransform(in_target_frame, in_source_frame, ros::Time(0), transform);
+    camera_lidar_tf_ok_ = true;
+    ROS_INFO("[%s] Camera-Lidar TF obtained", __APP_NAME__);
+  }
+  catch (tf::TransformException &ex)
+  {
+    ROS_ERROR("[%s] %s", __APP_NAME__, ex.what());
+  }
+
+  return transform;
+}
 ```
 
 
@@ -1522,6 +1545,56 @@ cv::rectangle(image, topLeft, bottomRight, cv::Scalar(0, 0, 255), thickness);
 > Mat c0(5, 5, CV_8UC1, Scalar(4, 5, 6))
 >
 > Mat d = (cv::Mat_<int>(1, 5) << 1, 2, 3, 4, 5)
+
+
+
+#### cv::Rect
+
+```c++
+template<typename _Tp> class Rect_
+{
+public:
+    typedef _Tp value_type;
+
+    //! default constructor
+    Rect_();
+    Rect_(_Tp _x, _Tp _y, _Tp _width, _Tp _height);
+    Rect_(const Rect_& r);
+    Rect_(Rect_&& r) CV_NOEXCEPT;
+    Rect_(const Point_<_Tp>& org, const Size_<_Tp>& sz);
+    Rect_(const Point_<_Tp>& pt1, const Point_<_Tp>& pt2);
+
+    Rect_& operator = ( const Rect_& r );
+    Rect_& operator = ( Rect_&& r ) CV_NOEXCEPT;
+    //! the top-left corner
+    Point_<_Tp> tl() const;
+    //! the bottom-right corner
+    Point_<_Tp> br() const;
+
+    //! size (width, height) of the rectangle
+    Size_<_Tp> size() const;
+    //! area (width*height) of the rectangle
+    _Tp area() const;
+    //! true if empty
+    bool empty() const;
+
+    //! conversion to another data type
+    template<typename _Tp2> operator Rect_<_Tp2>() const;
+
+    //! checks whether the rectangle contains the point
+    bool contains(const Point_<_Tp>& pt) const;
+
+    _Tp x; //!< x coordinate of the top-left corner
+    _Tp y; //!< y coordinate of the top-left corner
+    _Tp width; //!< width of the rectangle
+    _Tp height; //!< height of the rectangle
+};
+
+typedef Rect_<int> Rect2i;
+typedef Rect_<float> Rect2f;
+typedef Rect_<double> Rect2d;
+typedef Rect2i Rect;
+```
 
 
 
