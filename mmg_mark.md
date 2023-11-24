@@ -1076,6 +1076,10 @@ roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/fil
 
 
 
+#### Autoware中的权重文件找不到报错
+
+* 需要将配置文件复制一份到install/xxxxbag/share目录下面
+
 
 
 #### ZED相机驱动安装
@@ -1224,6 +1228,16 @@ roslaunch package_name combined_launch_file.launch
 主要作用是使节点保持运行，处理ROS消息和回调函数。
 
 在`ros::spin()`开始运行后，节点会保持活动状态，处理消息，并执行回调函数，直到节点被显式地关闭或终止。通常，`ros::spin()`函数在节点的`main`函数中调用，以确保节点持续运行并处理消息，直到用户决定关闭节点。
+
+
+
+#### tf::TransformListener
+
+```shell
+1. 允许ROS节点订阅和监听来自tf广播器（tf broadcaster）发布的坐标变换信息。它可以接收并缓存来自不同坐标系的变换关系，并提供查询接口，以便在节点中获取不同坐标系之间的变换关系
+2. lookupTransform() 方法用于查询两个坐标系之间的变换关系
+3. 可以通过订阅frame_id来查询tf
+```
 
 
 
@@ -1696,6 +1710,8 @@ $$
 >
 >PDA算法：在实际的卡尔曼滤波中有预测的轨迹和我量测的轨迹，交杂在一起，这个算法的主要目的是判定轨迹关联，除了这个算法还有KNN算法，基于马氏距离的判定，JPDA, CJPDA。为每个有效量测计算一个概率，并结合新息计算出最优量测。
 
+
+
 #### UKF算法
 
 ```shell
@@ -1706,11 +1722,11 @@ $$
    2）第二种方法是利用均值和协方差再产生新的sigmapoint去带入观测方程
 5. 乘以相应的权重得到观测均值，状态预测协方差(nx1)
 7. 利用最终预测值进行卡尔曼更新
-
-参考链接：
-* https://zhuanlan.zhihu.com/p/482392082
-* https://blog.csdn.net/weixin_42905141/article/details/99710297?ops_request_misc=&request_id=&biz_id=102&utm_term=UKF&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-1-99710297.142^v96^pc_search_result_base5&spm=1018.2226.3001.4187
 ```
+
+* 参考链接：
+* [无迹卡尔曼滤波UKF的理解与应用（附Matlab实例） - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/482392082) 
+* [手撕自动驾驶算法——无迹卡尔曼滤波（UKF）-CSDN博客](https://blog.csdn.net/weixin_42905141/article/details/99710297?ops_request_misc=&request_id=&biz_id=102&utm_term=UKF&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-1-99710297.142) 
 
 
 
@@ -1757,13 +1773,38 @@ $$
 
 然后将得到的混合概率与不同卡尔曼滤波的预测值相乘计算均值和协方差
 
+参考链接：
+
+* [卡尔曼滤波好文分享以及重点内容提取第四弹——IMM交互多模型 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/621375776) 
+
+#### 概率论
+
+* 贝叶斯估计
+
+[【精选】Traditional Multiple Objects Tracking (updating)-CSDN博客](https://blog.csdn.net/qq_21933647/article/details/107433035?ops_request_misc=&request_id=&biz_id=102&utm_term=PDA%E7%AE%97%E6%B3%95&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-1-107433035.142^v96^pc_search_result_base5&spm=1018.2226.3001.4187) 
+
+* 张宇数学基础讲
+
+
+
+#### 自动驾驶数据融合方法
+
+[1] https://zhuanlan.zhihu.com/p/470588787 
+
+[2] Multi-modal Sensor Fusion for Auto Driving Perception: A Survey 
+
 
 
 #### 数据关联算法
 
 > * KNN算法：计算简单，缺点是多回波环境下离目标预测位置最近的候选回波不一定是目标的真实回波，适用于稀疏回波环境中跟踪非机动目标回波。
->
 > * PDA算法：考虑了落入相关波门内的所有候选回波，并且根据不同的相关情况计算出各回波来自目标的概率，利用这些概率值；
+>
+> ![1700633544135](C:\Users\GMM\AppData\Local\Temp\1700633544135.png)
+
+- 参考链接：
+- [概率数据关联（PDA）算法解析 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/176851546) 
+- [【精选】手撕自动驾驶算法——多目标跟踪：数据关联_数据关联实现多目标跟踪_令狐少侠、的博客-CSDN博客](https://blog.csdn.net/weixin_42905141/article/details/123754041?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522170062003116800222819795%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=170062003116800222819795&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-6-123754041-null-null.142^v96^pc_search_result_base5&utm_term=PDA%E7%AE%97%E6%B3%95&spm=1018.2226.3001.4187) 
 
 
 
