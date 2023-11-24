@@ -1264,6 +1264,82 @@ ROSRangeVisionFusionApp::FindTransform(const std::string &in_target_frame, const
 
 
 
+#### jsk_recognition_utils::Cube
+
+* 用于表示三维空间中的立方体（cube）
+
+```c++
+namespace jsk_recognition_utils
+{
+  class Cube
+  {
+  public:
+    typedef boost::shared_ptr<Cube> Ptr;
+    typedef boost::shared_ptr<const Cube> ConstPtr;
+
+    // 构造函数，通过传递立方体的中心坐标、尺寸和姿态来创建 Cube 对象
+    Cube(const Eigen::Vector3d& center, const Eigen::Vector3d& dimensions, const Eigen::Quaterniond& orientation);
+
+    // 获取立方体的中心坐标
+    const Eigen::Vector3d& getCentroid() const;
+
+    // 获取立方体的尺寸
+    const Eigen::Vector3d& getDimensions() const;
+
+    // 获取立方体的姿态（四元数表示）
+    const Eigen::Quaterniond& getOrientation() const;
+
+    // ...
+    // 其他成员函数和操作符重载
+  };
+}
+```
+
+
+
+#### Eigen::Affine3f
+
+* 类的实例通常用于表示三维空间中的仿射变换，包括平移、旋转、缩放等操作
+
+
+
+#### Eigen::MatrixXd
+
+* 用于表示动态大小的矩阵，其中的元素可以是任意数据类型。
+
+* 可以用于表示任意nxn的矩阵，以及运算
+
+* Eigen::VectorXd只能表示一维动态数组
+
+  ```cpp
+  int main() {
+      // 创建一个3x3的MatrixXd矩阵，元素类型为double
+      Eigen::MatrixXd matrix(3, 3);
+  
+      // 初始化矩阵
+      matrix << 1, 2, 3,
+                4, 5, 6,
+                7, 8, 9;
+  
+      // 输出矩阵
+      std::cout << "Matrix:\n" << matrix << "\n";
+  
+      // 进行矩阵运算，例如矩阵乘法
+      Eigen::MatrixXd result = matrix * matrix;
+  
+      // 输出运算结果
+      std::cout << "Result:\n" << result << "\n";
+  
+      return 0;
+  }
+  ```
+
+
+
+
+
+
+
 #### visualization_msgs::Marker
 
 ROS中用于可视化目的的消息类型之一，通常用于在可视化工具中绘制3D场景中的各种标记，如点、线、箭头、文本等；这些标记可以用于显示传感器数据、路径规划、物体追踪以及其他机器人感知和控制任务。
