@@ -1189,6 +1189,17 @@ roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/fil
 
 
 
+#### rosbag如何截取片段
+
+```shell
+1. rosbag play your_bag_file.bag
+2. rosbag info your_bag_file.bag
+3. rosbag filter your_bag_file.bag your_output_file.bag "yourstart_time <= t.to_sec() <= yourend_time"
+​```
+```
+
+
+
 #### roslaunch
 
 launch文件
@@ -1412,6 +1423,13 @@ int main(int argc, char** argv) {
 
 
 
+#### IplImage
+
+* IplImage 是 OpenCV 旧版本（OpenCV 2及以下）中使用的图像数据结构
+* 从 OpenCV 3.0 版本开始，推荐使用更先进的 cv::Mat 数据结构来替代 IplImage
+
+
+
 #### cv::FileStorage
 
 OpenCV库中的一个类，用于在磁盘上读写和处理文件，主要用于配置参数文件
@@ -1539,9 +1557,24 @@ void Read_XML(){
 
 
 
+#### cv::bundingRect
+
+* OpenCV 中的一个函数，用于计算给定轮廓的最小外接矩形
+
+```c++
+cv::Rect cv::boundingRect(
+    InputArray points  // 输入的轮廓点集
+);
+```
+
+* points：输入的轮廓点集，可以是一个表示轮廓的 std::vector<cv::Point> 或 cv::Mat
+* 函数返回一个 cv::Rect 对象，表示计算得到的最小外接矩形
+
+
+
 #### cv_bridge::CvImagePtr
 
-用于在ROS和OpenCV之间的图像数据转换和传递
+* 用于在ROS和OpenCV之间的图像数据转换和传递
 
 ```c++
 #include <ros/ros.h>
@@ -1670,6 +1703,226 @@ typedef Rect_<int> Rect2i;
 typedef Rect_<float> Rect2f;
 typedef Rect_<double> Rect2d;
 typedef Rect2i Rect;
+```
+
+
+
+#### cv::resize
+
+* OpenCV 中用于调整图像大小的函数。它允许您将图像缩放到指定的尺寸或按比例进行调整。
+
+```c++
+void cv::resize(
+    InputArray src,         // 输入图像
+    OutputArray dst,        // 输出图像
+    Size dsize,             // 目标尺寸
+    double fx = 0,          // 水平方向缩放比例
+    double fy = 0,          // 垂直方向缩放比例
+    int interpolation = INTER_LINEAR  // 插值方法
+);
+```
+
+
+
+#### cv::findChessboardCorners
+
+* 用于检测棋盘格模式的角点
+
+```c++
+bool cv::findChessboardCorners(
+    InputArray image,          // 输入图像
+    Size patternSize,          // 棋盘格内角点的行列数
+    OutputArray corners,       // 输出的角点坐标
+    int flags = CALIB_CB_ADAPTIVE_THRESH + CALIB_CB_NORMALIZE_IMAGE  // 检测参数标志
+);
+```
+
+```c++
+cv::Mat image = cv::imread("chessboard.jpg", cv::IMREAD_GRAYSCALE);
+// 读取灰度图像
+
+cv::Size patternSize(9, 6);
+std::vector<cv::Point2f> corners;
+bool found = cv::findChessboardCorners(image, patternSize, corners);
+
+if (found) {
+    cv::drawChessboardCorners(image, patternSize, corners, found);
+    cv::imshow("Chessboard", image);
+    cv::waitKey(0);
+}
+```
+
+
+
+#### cv::projectPoints 
+
+* 用于将三维点云投影到相机平面上 
+
+```c++
+void cv::projectPoints(
+    InputArray objectPoints,       // 输入的三维点云坐标
+    InputArray rvec,               // 旋转向量
+    InputArray tvec,               // 平移向量
+    InputArray cameraMatrix,       // 相机内参矩阵
+    InputArray distCoeffs,         // 畸变系数
+    OutputArray imagePoints,       // 输出的投影点坐标
+    OutputArray jacobian = noArray(), // 输出的雅克比矩阵（可选）
+    double aspectRatio = 0        // 输出图像的像素宽高比（可选）
+);
+```
+
+```c++
+std::vector<cv::Point3f> objectPoints;
+// 假设 objectPoints 为一组三维点云坐标
+
+cv::Mat rvec;  // 旋转向量
+cv::Mat tvec;  // 平移向量
+// 假设 rvec 和 tvec 为相机的旋转和平移姿态
+
+cv::Mat cameraMatrix;
+// 假设 cameraMatrix 为相机的内参矩阵
+
+cv::Mat distCoeffs;
+// 假设 distCoeffs 为相机的畸变系数
+
+std::vector<cv::Point2f> imagePoints;
+// 用于存储投影点坐标
+
+cv::projectPoints(objectPoints, rvec, tvec, cameraMatrix, distCoeffs, imagePoints);
+```
+
+
+
+#### cv::solvePnP 
+
+* 用于解算相机的姿态（旋转和平移） 
+
+```c++
+bool cv::solvePnP(
+    InputArray objectPoints,      // 物体坐标点的数组或向量
+    InputArray imagePoints,       // 图像坐标点的数组或向量
+    InputArray cameraMatrix,      // 相机内参矩阵
+    InputArray distCoeffs,        // 畸变系数
+    OutputArray rvec,             // 输出的旋转向量
+    OutputArray tvec,             // 输出的平移向量
+    bool useExtrinsicGuess = false,// 是否使用外部姿态作为初始猜测（可选）
+    int flags = SOLVEPNP_ITERATIVE // 解算方法的标志（可选）
+);
+```
+
+```c++
+std::vector<cv::Point3f> objectPoints;
+// 假设 objectPoints 为一组物体坐标点
+
+std::vector<cv::Point2f> imagePoints;
+// 假设 imagePoints 为一组图像坐标点
+
+cv::Mat cameraMatrix;
+// 假设 cameraMatrix 为相机的内参矩阵
+
+cv::Mat distCoeffs;
+// 假设 distCoeffs 为相机的畸变系数
+
+cv::Mat rvec;  // 输出的旋转向量
+cv::Mat tvec;  // 输出的平移向量
+
+cv::solvePnP(objectPoints, imagePoints, cameraMatrix, distCoeffs, rvec, tvec);
+```
+
+
+
+#### cv::Rodrigues 
+
+* 将旋转向量转换为旋转矩阵，或将旋转矩阵转换为旋转向量 
+
+```c
+void cv::Rodrigues(
+    InputArray src,    // 输入的旋转向量或旋转矩阵
+    OutputArray dst,   // 输出的旋转矩阵或旋转向量
+    OutputArray jacobian = noArray() // 可选的输出雅可比矩阵
+);
+```
+
+```c
+cv::Mat rvec;
+// 假设 rvec 为输入的旋转向量
+
+cv::Mat R;  // 输出的旋转矩阵
+
+cv::Rodrigues(rvec, R);
+```
+
+
+
+#### cv::circle 
+
+* 用于在图像上绘制圆的函数之一
+
+```c++
+void cv::circle(
+    InputOutputArray img,     // 输入输出图像
+    Point center,             // 圆心坐标
+    int radius,               // 圆的半径
+    const Scalar& color,      // 圆的颜色
+    int thickness = 1,        // 圆的线条粗细（可选，默认为 1）
+    int lineType = LINE_8,    // 线条类型（可选，默认为 8 连通线）
+    int shift = 0             // 坐标点的小数位数（可选，默认为 0）
+);
+```
+
+```c++
+cv::Mat img;
+// 假设 img 是输入图像
+
+cv::Point center(100, 100);
+// 假设圆心坐标为 (100, 100)
+
+int radius = 50;
+// 假设圆的半径为 50
+
+cv::Scalar color(0, 0, 255);
+// 假设圆的颜色为红色
+
+int thickness = 2;
+// 假设线条粗细为 2
+
+cv::circle(img, center, radius, color, thickness);
+```
+
+
+
+
+
+#### cv::cvtColor
+
+* 用于图像颜色空间的转换
+
+```c++
+void cv::cvtColor(
+    InputArray src,           // 输入图像
+    OutputArray dst,          // 输出图像
+    int code,                 // 颜色空间转换代码
+    int dstCn = 0             // 输出图像的通道数，如果为 0，则根据代码自动确定
+);
+```
+
+
+
+
+
+#### cv::copyMakeBorder
+
+* 用于对图像进行边界扩展（border extension）操作，在图像的边界添加额外的像素值
+
+```c++
+void cv::copyMakeBorder(
+    InputArray src,              // 输入图像
+    OutputArray dst,             // 输出图像
+    int top, int bottom,         // 上下边界的大小
+    int left, int right,         // 左右边界的大小
+    int borderType,              // 边界类型
+    const Scalar& value = Scalar()  // 扩展的像素值
+);
 ```
 
 
