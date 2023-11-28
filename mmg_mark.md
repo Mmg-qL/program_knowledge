@@ -1066,6 +1066,8 @@ rosbag play -l kitti_2011_10_03_drive_0047_synced.bag /kitti/camera_color_left/i
     
  rosbag play -l CADCD_2019_02_27_seq_0051 /cadcd/velo/pointcloud:=/points_raw /cadcd/2019_02_27/0051/camera_00/image_raw:=/image_raw
  
+ rosbag play -r 0.5 -l 2023-11-25-12-29-54.bag /lslidar_point_cloud:=/points_raw /zed/zed_node/rgb/image_rect_color:=/image_raw
+ 
  #编译
  AUTOWARE_COMPILE_WITH_CUDA=1 colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3
  
@@ -1150,6 +1152,16 @@ roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/fil
 > * 打印log信息定位代码在哪一行出错
 > * 监控相应的传感器信息
 
+
+
+#### 点云标注annotate使用
+
+```shell
+1. roslaunch annotate demo.launch bag:="/usr/data/kitti_drive/kitti_drive2.bag --pause-topics /kitti/velo/pointcloud"
+```
+
+
+
 ## ROS&&CV
 
 #### 句柄
@@ -1228,6 +1240,12 @@ launch文件
 
 ```shell
 roslaunch package_name combined_launch_file.launch
+
+
+  ros-noetic-jsk-rviz-plugins ros-noetic-rtabmap-demos
+  ros-noetic-rtabmap-examples ros-noetic-rtabmap-launch
+  ros-noetic-rtabmap-legacy ros-noetic-rtabmap-ros
+  ros-noetic-rtabmap-rviz-plugins ros-noetic-rviz ros-noetic-rviz-imu-plugin
 ```
 
 
@@ -1891,8 +1909,6 @@ cv::circle(img, center, radius, color, thickness);
 
 
 
-
-
 #### cv::cvtColor
 
 * 用于图像颜色空间的转换
@@ -1905,8 +1921,6 @@ void cv::cvtColor(
     int dstCn = 0             // 输出图像的通道数，如果为 0，则根据代码自动确定
 );
 ```
-
-
 
 
 
@@ -1924,8 +1938,6 @@ void cv::copyMakeBorder(
     const Scalar& value = Scalar()  // 扩展的像素值
 );
 ```
-
-
 
 
 
@@ -2022,6 +2034,19 @@ $$
 }
 \right]
 $$
+
+
+
+#### 雷达坐标系(velo_link)
+
+```
+      x
+      |
+      |
+y—— ——z(朝向外)
+```
+
+
 
 
 
