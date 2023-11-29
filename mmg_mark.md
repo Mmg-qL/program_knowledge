@@ -2208,6 +2208,18 @@ $$
 
 
 
+* 参考链接
+
+[MOT和MTMC指标总结及详细计算方法_mot count ids-CSDN博客](https://blog.csdn.net/qq_34919792/article/details/107067992?spm=1001.2014.3001.5506) 
+
+[【多目标跟踪任务——评价指标】_mota值多大-CSDN博客](https://blog.csdn.net/selami/article/details/124053187?ops_request_misc=&request_id=&biz_id=102&utm_term=MOTA%E8%AE%A1%E7%AE%97&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-1-124053187.142^v96^pc_search_result_base5&spm=1018.2226.3001.4187) 
+
+[MOT多目标跟踪评价指标及计算代码（持续更新） - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/405983694) 
+
+[MOT多目标跟踪评价指标代码py-motmetrics-CSDN博客](https://blog.csdn.net/sleepinghm/article/details/119538354) 
+
+
+
 #### UKF算法
 
 ```shell
