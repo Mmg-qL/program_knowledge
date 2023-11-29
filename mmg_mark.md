@@ -1162,6 +1162,44 @@ roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/fil
 
 
 
+#### CMakeLists.txt编写
+
+CMakeLists.txt是一个用于配置CMake项目的文本文件，它包含了一系列的指令和变量，用于指定项目的源文件、目标文件、依赖关系、编译选项、安装路径等信息。CMakeLists.txt的配置可以分为以下几个部分：
+
+- 基础配置：这部分是对项目的基本信息进行说明，包括项目的名称、版本、语言、编译器、全局宏定义和头文件路径等。一般使用`project`、`set`、`add_definitions`、`include_directories`等指令进行配置。
+- 编译目标文件：这部分是指定项目要生成的目标文件的类型、名称、源文件和链接库等。目标文件的类型一般有静态库、动态库和可执行文件，分别使用`add_library`、`add_executable`等指令进行创建，并使用`target_link_libraries`指令进行链接操作。
+- 安装和打包：这部分是指定项目在执行安装和打包时，需要安装或打包的内容和目标路径等。一般使用`install`指令进行安装配置，使用`CPack`模块进行打包配置。
+
+[如果你想了解更多关于CMakeLists.txt的配置的细节和示例，你可以参考以下的网页](https://zhuanlan.zhihu.com/p/371257515)[1](https://zhuanlan.zhihu.com/p/371257515)[2](https://blog.csdn.net/qq_38410730/article/details/102477162)[3](https://bing.com/search?q=CMakeLists.txt%E7%9A%84%E9%85%8D%E7%BD%AE)[4](https://zhuanlan.zhihu.com/p/648590071)[5](https://blog.csdn.net/u011086209/article/details/90036153)[6](https://zhuanlan.zhihu.com/p/587558418)。
+
+
+
+* 使用 Eigen3 库和 yaml-cpp 库时，可以按照以下方式配置 CMakeLists.txt 文件： 
+
+```cmake
+cmake_minimum_required(VERSION 3.12)
+project(MyProject)
+
+# 设置 C++ 标准
+set(CMAKE_CXX_STANDARD 11)
+
+# 添加依赖项：Eigen3
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
+# 添加依赖项：yaml-cpp
+find_package(yaml-cpp REQUIRED)
+include_directories(${YAML_CPP_INCLUDE_DIR})
+
+# 添加源码文件
+add_executable(MyExecutable extract.cpp)
+
+# 链接依赖项
+target_link_libraries(MyExecutable Eigen3::Eigen yaml-cpp)
+```
+
+
+
 ## ROS&&CV
 
 #### 句柄
@@ -2047,6 +2085,25 @@ y—— ——z(朝向外)
 ```
 
 
+
+#### 图像坐标系
+
+```shell
+o —— ——> x(width)
+|
+|
+y(height)
+```
+
+
+
+#### MOT标注数据格式
+
+* 2D图像
+
+```shell
+frame, id, x, y, width, height, conf(置信度), -1, -1, -1
+```
 
 
 
