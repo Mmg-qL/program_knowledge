@@ -1177,25 +1177,25 @@ CMakeLists.txt是一个用于配置CMake项目的文本文件，它包含了一�
 * 使用 Eigen3 库和 yaml-cpp 库时，可以按照以下方式配置 CMakeLists.txt 文件： 
 
 ```cmake
-cmake_minimum_required(VERSION 3.12)
-project(MyProject)
+# 基础配置
+cmake_minimum_required(VERSION 3.10) # 指定CMake的最低版本要求
+project(track) # 指定项目的名称
+set(CMAKE_CXX_STANDARD 11) # 指定C++的标准版本
+set(CMAKE_BUILD_TYPE Release) # 指定编译类型为Release模式
 
-# 设置 C++ 标准
-set(CMAKE_CXX_STANDARD 11)
+# 编译目标文件
+add_executable(track track.cpp) # 指定要生成的可执行文件的名称和源文件
+find_package(Eigen3 REQUIRED) # 查找Eigen3库是否安装
+find_package(yaml-cpp REQUIRED) # 查找yaml-cpp库是否安装
+include_directories(${EIGEN3_INCLUDE_DIR}) # 添加Eigen3的头文件路径
+include_directories(${YAML_CPP_INCLUDE_DIR}) # 添加yaml-cpp的头文件路径
+target_link_libraries(track ${YAML_CPP_LIBRARIES}) # 链接yaml-cpp的库文件
 
-# 添加依赖项：Eigen3
-find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN3_INCLUDE_DIR})
-
-# 添加依赖项：yaml-cpp
-find_package(yaml-cpp REQUIRED)
-include_directories(${YAML_CPP_INCLUDE_DIR})
-
-# 添加源码文件
-add_executable(MyExecutable extract.cpp)
-
-# 链接依赖项
-target_link_libraries(MyExecutable Eigen3::Eigen yaml-cpp)
+# 安装和打包
+install(TARGETS track DESTINATION bin) # 指定可执行文件的安装路径为bin目录
+set(CPACK_PACKAGE_NAME "track") # 指定打包的项目名称为track
+set(CPACK_PACKAGE_VERSION "1.0.0") # 指定打包的项目版本为1.0.0
+include(CPack) # 包含CPack模块
 ```
 
 
@@ -2077,11 +2077,22 @@ $$
 
 #### 雷达坐标系(velo_link)
 
-```
-      x
+```shell
+      x(车辆的朝向)
       |
       |
 y—— ——z(朝向外)
+```
+
+
+
+#### 相机坐标系
+
+```shell
+	z(车辆朝向)
+	|
+	|
+	y(朝向里)—— ——x
 ```
 
 
