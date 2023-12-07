@@ -1331,6 +1331,12 @@ ROSRangeVisionFusionApp::FindTransform(const std::string &in_target_frame, const
 
 
 
+#### tf::stampedTranform和tf::Transform区别
+
+* `tf::StampedTransform`包含了时间戳信息，用于表示动态的坐标系变换，而`tf::Transform`则表示静态的坐标系变换 
+
+  
+
 #### jsk_recognition_utils::Cube
 
 * 用于表示三维空间中的立方体（cube）
@@ -2008,6 +2014,12 @@ void cv::copyMakeBorder(
 
   这些参数描述了图像平面不是正好与光线平行时引入的畸变。切向畸变参数主要用于校正图像中的倾斜或非正交畸变。
 ```
+
+
+
+#### Kitti数据集坐标系
+
+![1701659912342](C:\Users\GMM\AppData\Local\Temp\1701659912342.png)
 
 
 
