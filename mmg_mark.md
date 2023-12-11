@@ -2377,9 +2377,29 @@ $$
 
 #### 自动驾驶数据融合方法
 
-[1] https://zhuanlan.zhihu.com/p/470588787 
+* https://zhuanlan.zhihu.com/p/470588787 
+* Multi-modal Sensor Fusion for Auto Driving Perception: A Survey 
+* https://zhuanlan.zhihu.com/p/446284775
 
-[2] Multi-modal Sensor Fusion for Auto Driving Perception: A Survey 
+
+
+#### CTRV模型
+
+* [过程噪声是指在状态转换模型中，由于物理过程的不确定性或者模型的简化而引入的随机扰动。](https://zhuanlan.zhihu.com/p/389589611)[1](https://zhuanlan.zhihu.com/p/389589611)[ 过程噪声通常假设为零均值的高斯白噪声，其协方差矩阵为Q。](https://www.cnblogs.com/jiangxinyu1/p/12448915.html) 
+
+```shell
+在CTRV模型中，假设物体的速度 (v) 和旋转速度 (ω) 为常数，而忽略了加速度的变化。因此，要把加速度项的影响放到过程噪声中。3 CTRV模型中的过程噪声可以分为两个部分：
+1) 纵向加速度噪声 (va)，表示在纵向速度上的不确定性，因此可以定义为正态分布的白噪声，以0为均值，以σa^2为方差。
+2) 横摆角加速度噪声 (αa)，表示在横摆角速度上的不确定性，因此可以定义为正态分布的白噪声，以0为均值，以σα^2为方差。
+```
+
+![1702091979138](C:\Users\GMM\AppData\Local\Temp\1702091979138.png)
+
+![1702091995353](C:\Users\GMM\AppData\Local\Temp\1702091995353.png)
+
+* [CRTV&UKF - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/561618286) 
+
+![1702091785720](C:\Users\GMM\AppData\Local\Temp\1702091785720.png)
 
 
 
