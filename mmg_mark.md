@@ -1110,6 +1110,21 @@ roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/fil
 
 
 
+#### autoware中的跟踪代码检测框yaw角度问题
+
+* 熟悉打印log
+* 熟悉代码
+* 跟踪的yaw角度较差，修改输出的更新让其直接等于检测的yaw角度
+
+
+
+#### autoware中的相机雷达融合问题
+
+* 打印log
+* 检查相机内参矩阵输入错误
+
+
+
 #### 调试编译bug
 
 1. 数组下标越界
@@ -1197,6 +1212,18 @@ set(CPACK_PACKAGE_NAME "track") # 指定打包的项目名称为track
 set(CPACK_PACKAGE_VERSION "1.0.0") # 指定打包的项目版本为1.0.0
 include(CPack) # 包含CPack模块
 ```
+
+
+
+#### 输出重定向
+
+* rostopic echo > a.txt
+
+
+
+#### 显示文本前几行
+
+* cat a.txt | head -n 10
 
 
 
@@ -2019,7 +2046,7 @@ void cv::copyMakeBorder(
 
 #### Kitti数据集坐标系
 
-![1701659912342](C:\Users\GMM\AppData\Local\Temp\1701659912342.png)
+[KITTI数据集解析和可视化_kitti数据集可视化-CSDN博客](https://blog.csdn.net/zyw2002/article/details/127395975?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522170255525216800215058003%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=170255525216800215058003&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-127395975-null-null.142^v96^pc_search_result_base5&utm_term=kitti%E6%95%B0%E6%8D%AE%E9%9B%86&spm=1018.2226.3001.4187) 
 
 
 
@@ -2130,6 +2157,8 @@ frame, id, x, y, width, height, conf(置信度), -1, -1, -1
 
 
 
+
+
 ## 算法相关
 
 #### 深度学习
@@ -2220,6 +2249,8 @@ $$
 * 然后利用这些初始化向量去带入状态方程和量测方程生成一步预测
 * 这时候再用PDA算法对每个目标的量测向量进行筛选，每个目标可能有多个可能相关的匹配
 * 筛选合适的量测向量与前面的一步预测生成卡尔曼最优估计
+
+![1702473860659](C:\Users\GMM\AppData\Local\Temp\1702473860659.png)
 
 
 
