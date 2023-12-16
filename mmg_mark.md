@@ -1115,6 +1115,8 @@ roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/fil
 * 熟悉打印log
 * 熟悉代码
 * 跟踪的yaw角度较差，修改输出的更新让其直接等于检测的yaw角度
+* object.angle输出为0，但是发现object.pose.orientation不为0
+* 代码bug，之前添加的部分忘记删除
 
 
 
