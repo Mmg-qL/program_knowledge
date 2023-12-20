@@ -1748,6 +1748,35 @@ cv::rectangle(image, topLeft, bottomRight, cv::Scalar(0, 0, 255), thickness);
 
 
 
+#### cv::Size2f
+
+* 用于表示二维大小（尺寸），其中的尺寸值是以浮点数表示
+
+```c++
+//构造函数
+cv::Size2f::Size2f();
+cv::Size2f::Size2f(float width, float height);
+    
+//用例
+#include <opencv2/opencv.hpp>
+#include <iostream>
+using namespace cv;
+using namespace std;
+int main()
+{
+    // 创建一个矩形大小，宽度为 10.5，高度为 20.3
+    Size2f sz(10.5, 20.3);
+    // 输出它的宽度、高度和面积
+    cout << "width: " << sz.width << endl;
+    cout << "height: " << sz.height << endl;
+    cout << "area: " << sz.area() << endl;
+    return 0;
+}
+
+```
+
+
+
 #### cv::Rect
 
 ```c++
@@ -2014,6 +2043,47 @@ void cv::copyMakeBorder(
 
 
 
+#### cv::RotatedRect
+
+* 用于表示旋转矩形 
+
+```c++
+//构造函数
+cv::RotatedRect::RotatedRect();
+cv::RotatedRect::RotatedRect(const cv::Point2f& center, const cv::Size2f& size, float angle);
+
+
+//用例
+#include <opencv2/opencv.hpp>
+using namespace cv;
+int main()
+{
+    // 创建一个 200x200 的图像，背景为黑色
+    Mat test_image(200, 200, CV_8UC3, Scalar(0));
+    // 创建一个旋转矩形，中心点为 (100,100)，边长为 (100,50)，旋转角度为 30 度
+    RotatedRect rRect = RotatedRect(Point2f(100, 100), Size2f(100, 50), 30);
+    // 获取旋转矩形的四个顶点
+    Point2f vertices[4];
+    rRect.points(vertices);
+    // 在图像上绘制旋转矩形的边框，颜色为绿色
+    for (int i = 0; i < 4; i++)
+        line(test_image, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0), 2);
+    // 获取旋转矩形的包围矩形
+    Rect brect = rRect.boundingRect();
+    // 在图像上绘制包围矩形的边框，颜色为红色
+    rectangle(test_image, brect, Scalar(0, 0, 255), 2);
+    // 显示图像
+    imshow("rectangles", test_image);
+    waitKey(0);
+    return 0;
+}
+
+```
+
+
+
+
+
 #### 相机参数
 
 * 内参K矩阵
@@ -2159,6 +2229,51 @@ frame, id, x, y, width, height, conf(置信度), -1, -1, -1
 
 
 
+#### GPS转换为东北天坐标
+
+```c++
+//读取
+//read gps data get the longitude latitude
+std::string gpspath = path + "/oxts/"+file+".txt";
+cout<<gpspath<<endl;
+std::ifstream gps(gpspath);
+std::vector<std::string> gpsdata;
+if (gps) {
+    boost::char_separator<char> sep_line { "\n" };
+    std::stringstream buffer;
+    buffer << gps.rdbuf();
+    std::string contents(buffer.str());
+    tokenizer tok_line(contents, sep_line);
+    std::vector<std::string> lines(tok_line.begin(), tok_line.end());
+    gpsdata = lines;
+    int size = gpsdata.size();
+
+    cout<<size<<" "<< lidarname.size()<<endl;
+    if(size != lidarname.size()){
+        cout<<"file number wrong!"<<endl;
+        std::abort();
+    }
+}
+
+//........
+//.........
+
+//转换
+//get the gps data and get the tranformation matrix
+tokenizer tokn(gpsdata[frame], sep);
+vector<string> temp_sep(tokn.begin(), tokn.end());
+
+double UTME,UTMN;
+double latitude = stringToNum<double>(temp_sep[0]);
+double longitude = stringToNum<double>(temp_sep[1]);
+double heading = stringToNum<double>(temp_sep[5]) - 90 * M_PI/180;
+LonLat2UTM(longitude, latitude, UTME, UTMN);
+//调用一个函数 LonLat2UTM，将经度和纬度值作为参数传递给该函数，并将转换后的UTM坐标存储在 UTME 和 UTMN 变量中。
+
+```
+
+
+
 
 
 ## 算法相关
@@ -2191,6 +2306,22 @@ frame, id, x, y, width, height, conf(置信度), -1, -1, -1
 1.步长s影响最后输出为：(n+2p-f)/s + 1
 2.如果不能除整，则向下取整
 ```
+
+
+
+#### 卷积神经网络的函数拟合
+
+* 卷积后输出
+
+$$
+Z^{[1]}=W^{[1]}a^{[0]}+b^{[1]}
+$$
+
+* 加入Relu后
+
+$$
+a^{[1]}=g(Z^{[1]})
+$$
 
 
 
