@@ -1217,6 +1217,12 @@ include(CPack) # 包含CPack模块
 
 
 
+#### message::filter中的bind函数报错
+
+* 在调用 `registerCallback` 函数时，回调函数的参数顺序与 `SyncPolicyT` 的模板参数顺序匹配。根据你提供的回调函数定义，参数顺序是正确的。 
+
+
+
 #### 输出重定向
 
 * rostopic echo > a.txt
@@ -1511,6 +1517,45 @@ int main(int argc, char** argv) {
 
 * 两个传感器时间戳必须格式一致，否则进入不了回调函数
 * 例如lslidar与相机调试中的时间同步，lslidar时间戳不更新，或者相机时间戳中断
+
+
+
+#### geometry_msgs::Twist
+
+* 用于表示机器人的线速度和角速度的消息类型
+
+```c++
+//成员变量
+geometry_msgs/Vector3 linear;
+geometry_msgs/Vector3 angular;
+
+//geometry_msgs::Vector3
+float64 x
+float64 y
+float64 z
+```
+
+
+
+#### visualization_msgs::Marker 
+
+* ROS（Robot Operating System）中的一个消息类型，用于在可视化工具中显示各种类型的标记（Marker） 
+
+```shell
+header：标记的头部信息，包括时间戳和坐标系。
+ns：命名空间，用于将标记分组，以便于管理和筛选。
+id：标记的唯一标识符，在同一命名空间中必须唯一。
+type：标记的类型，可以是点、线、箭头、立方体、球体等。
+action：标记的操作类型，可以是添加、修改、删除等。
+pose：标记的位置和姿态信息。
+scale：标记的大小，用于调整标记的尺寸。
+color：标记的颜色，可以是 RGBA 格式的颜色值。
+points：用于线条和多边形标记的点集。
+text：用于文本标记的文本内容。
+lifetime：标记的生命周期，控制标记在可视化工具中的显示时间。
+```
+
+
 
 
 
@@ -1827,6 +1872,18 @@ typedef Rect2i Rect;
 
 
 
+#### cv::line
+
+* 用于绘制一条线段，连接两个点
+
+```c++
+cv::line(image, start_point, end_point, color, thickness);
+```
+
+
+
+
+
 #### cv::resize
 
 * OpenCV 中用于调整图像大小的函数。它允许您将图像缩放到指定的尺寸或按比例进行调整。
@@ -2051,7 +2108,6 @@ void cv::copyMakeBorder(
 //构造函数
 cv::RotatedRect::RotatedRect();
 cv::RotatedRect::RotatedRect(const cv::Point2f& center, const cv::Size2f& size, float angle);
-
 
 //用例
 #include <opencv2/opencv.hpp>
@@ -2282,14 +2338,26 @@ LonLat2UTM(longitude, latitude, UTME, UTMN);
 
 * 卷积
 
-![1700487834993](C:\Users\GMM\AppData\Local\Temp\1700487834993.png)
-
-![1700488909207](C:\Users\GMM\AppData\Local\Temp\1700488909207.png)
-
 ```shell
-1. 将卷积核映射到图像上，然后逐个相乘累加的运算
+1. 将卷积核映射到图像上，然后逐个相乘累加的运算求和
 2. 注意卷积操作的位置，右边最后一列从下往上数对应映射第一行卷积参数
 3. nxn的图像采用fxf的卷积和得到(n-f+1)x(n-f+1)图像
+```
+
+![Snipaste_2023-12-20_15-23-15](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-20_15-23-15.png)
+
+* 三维卷积
+
+```shell
+1. 将卷积核对应相应的输入
+2. 将每个格子对应的参数相乘然后累加
+```
+
+* 1x1卷积核
+
+```shell
+1. 将输入的通道数改变
+2. 例如一个28x28x192的输入想要变为28x28x32的输出，可以采用32个1x1x192的卷积核
 ```
 
 * 填充
@@ -2302,9 +2370,28 @@ LonLat2UTM(longitude, latitude, UTME, UTMN);
 
 * 步长
 
-```
+```shell
 1.步长s影响最后输出为：(n+2p-f)/s + 1
 2.如果不能除整，则向下取整
+```
+
+* n个卷积核输出
+
+```
+加入有一个6x6x3的张量输入，现在有两个3x3x3的卷积核，那么输出为4x4x2的张量
+```
+
+![Snipaste_2023-12-20_15-06-47](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-20_15-06-47.png)
+
+
+
+* 池化
+
+```shell
+1. 区域划分，然后取每个区域最大值;
+2. 参数f(尺寸),s(步长);
+3. 输出：(n-f)/s + 1，向下取整
+4. 作用：改变张量的Nh和Nw
 ```
 
 
@@ -2317,11 +2404,70 @@ $$
 Z^{[1]}=W^{[1]}a^{[0]}+b^{[1]}
 $$
 
+* $$
+  a^{[0]}是输入的张量，W^{[1]}是卷积操作
+  $$
+
+  
+
 * 加入Relu后
 
 $$
 a^{[1]}=g(Z^{[1]})
 $$
+
+
+
+#### AlexNet
+
+* [AlexNet包含八层，前五层是卷积层，其中一些后面跟着最大池化层，最后三层是全连接层。](https://en.wikipedia.org/wiki/AlexNet) 
+* [第一个在物体识别方面使用深度学习和卷积神经网络的架构，它改变了计算机视觉和机器学习的范式](https://paperswithcode.com/method/alexnet) 
+
+![Snipaste_2023-12-20_16-12-35](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-20_16-12-35.png)
+
+
+
+#### VGGNet
+
+* [VGGNet是深度学习和计算机视觉领域的一个重要的基准，它为后续的网络架构提供了启发和参考](https://pytorch.org/hub/pytorch_vision_vgg/)
+
+![Snipaste_2023-12-20_16-21-03](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-20_16-21-03.png)
+
+
+
+#### ResNet
+
+* 解决深度层次神经网络梯度/消失爆炸问题
+
+![Snipaste_2023-12-20_16-38-58](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-20_16-38-58.png)
+
+![Snipaste_2023-12-20_16-36-12](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-20_16-36-12.png)
+
+![Snipaste_2023-12-20_20-32-00](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-20_20-32-00.png)
+
+#### Relu激活函数
+
+```python
+if input > 0:
+  return input
+else:
+  return 0
+```
+
+* 计算简单，能够输出一个真正的零值 。这与 tanh 和 sigmoid 激活函数不同，后者学习近似于零输出，例如一个非常接近于零的值，但不是真正的零值。这意味着负输入可以输出真零值，允许神经网络中的隐层激活包含一个或多个真零值。这就是所谓的稀疏表示，是一个理想的性质，在表示学习，因为它可以加速学习和简化模型。
+  
+
+#### Sigmod激活函数
+
+$$
+sigmod(x) = 1/(1+exp^{-x})
+$$
+
+
+
+#### softmax激活函数
+
+![Snipaste_2023-12-20_20-47-07](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-20_20-47-07.png)
 
 
 
@@ -2593,6 +2739,10 @@ $$
 - [【精选】手撕自动驾驶算法——多目标跟踪：数据关联_数据关联实现多目标跟踪_令狐少侠、的博客-CSDN博客](https://blog.csdn.net/weixin_42905141/article/details/123754041?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522170062003116800222819795%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=170062003116800222819795&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~baidu_landing_v2~default-6-123754041-null-null.142^v96^pc_search_result_base5&utm_term=PDA%E7%AE%97%E6%B3%95&spm=1018.2226.3001.4187) 
 
 
+
+#### 心得
+
+* 会不会取决于想不想学
 
 ## 代码
 
