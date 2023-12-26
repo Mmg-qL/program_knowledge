@@ -1110,6 +1110,12 @@ roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/fil
 
 
 
+#### Autoware编译报错
+
+* 注释部分代码，逐个模块进行调试
+
+
+
 #### autoware中的跟踪代码检测框yaw角度问题
 
 * 熟悉打印log
@@ -2176,6 +2182,10 @@ int main()
 
 [KITTI数据集解析和可视化_kitti数据集可视化-CSDN博客](https://blog.csdn.net/zyw2002/article/details/127395975?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522170255525216800215058003%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&request_id=170255525216800215058003&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-127395975-null-null.142^v96^pc_search_result_base5&utm_term=kitti%E6%95%B0%E6%8D%AE%E9%9B%86&spm=1018.2226.3001.4187) 
 
+[KITTI数据集--参数-CSDN博客](https://blog.csdn.net/cuichuanchen3307/article/details/80596689) 
+
+[Kitti数据集标签中yaw角在不同坐标系的转换_kitti 角度-CSDN博客](https://blog.csdn.net/ppppiu/article/details/121905961?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522170355815616800225567015%2522%252C%2522scm%2522%253A%252220140713.130102334.pc%255Fall.%2522%257D&request_id=170355815616800225567015&biz_id=0&utm_medium=distribute.pc_search_result.none-task-blog-2~all~first_rank_ecpm_v1~rank_v31_ecpm-3-121905961-null-null.142^v96^pc_search_result_base5&utm_term=yaw%E8%A7%92%E5%BA%A6%E6%AD%A3%E8%B4%9F&spm=1018.2226.3001.4187) 
+
 
 
 #### 相机坐标系转换关系
@@ -2418,6 +2428,14 @@ $$
 
 
 
+#### 网络参数个数计算
+
+![Snipaste_2023-12-26_21-16-52](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_21-16-52.png)
+
+![Snipaste_2023-12-26_21-17-54](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_21-17-54.png)
+
+
+
 #### AlexNet
 
 * [AlexNet包含八层，前五层是卷积层，其中一些后面跟着最大池化层，最后三层是全连接层。](https://en.wikipedia.org/wiki/AlexNet) 
@@ -2455,7 +2473,50 @@ else:
 ```
 
 * 计算简单，能够输出一个真正的零值 。这与 tanh 和 sigmoid 激活函数不同，后者学习近似于零输出，例如一个非常接近于零的值，但不是真正的零值。这意味着负输入可以输出真零值，允许神经网络中的隐层激活包含一个或多个真零值。这就是所谓的稀疏表示，是一个理想的性质，在表示学习，因为它可以加速学习和简化模型。
-  
+* RELU6
+
+![Snipaste_2023-12-26_21-57-09](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_21-57-09.png)
+
+
+
+#### Inception 层
+
+* 通过并行使用多个不同大小的卷积核和池化操作来捕捉不同尺度的图像特征。这种并行结构可以使网络在不同层次上具有多个感受野，从而提高了网络的表示能力。
+* 增大感受野，而且还可以提高神经网络的鲁棒性 
+
+![Snipaste_2023-12-26_20-20-59](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_20-20-59.png)
+
+
+
+#### MobileNet
+
+* 一种轻量级的卷积神经网络，专门设计用于移动和嵌入式视觉应用。MobileNet的核心思想是使用深度可分离卷积（depthwise separable convolution），
+* 将标准的卷积分解为一个深度卷积和一个逐点卷积，从而减少参数和计算量。
+
+![Snipaste_2023-12-26_20-58-26](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_20-58-26.png)
+
+![Snipaste_2023-12-26_20-56-43](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_20-56-43.png)
+
+![Snipaste_2023-12-26_21-22-02](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_21-22-02.png)
+
+
+
+#### MobilenetV2
+
+* 被广泛应用于移动设备和嵌入式系统中的图像分类、目标检测和图像分割等任务，为资源受限的场景提供了一种高效的解决方案
+* 先用1x1卷积核升维到原来6倍，再用1x1卷积核降维
+
+![Snipaste_2023-12-26_21-53-36](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_21-53-36.png)
+
+![Snipaste_2023-12-26_21-55-32](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_21-55-32.png)
+
+![Snipaste_2023-12-26_21-58-57](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_21-58-57.png)
+
+
+
+![Snipaste_2023-12-26_22-01-54](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_22-01-54.png)
+
+
 
 #### Sigmod激活函数
 
