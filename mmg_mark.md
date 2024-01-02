@@ -1126,10 +1126,25 @@ roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/fil
 
 
 
+#### autoware中的障碍物坐标转换到路径规划错误问题
+
+* 调试heading角度观察变化
+* 打印正确的角度
+* 发现矩阵写反
+
+
+
 #### autoware中的相机雷达融合问题
 
 * 打印log
 * 检查相机内参矩阵输入错误
+
+
+
+#### autoware中加入GPS和IMU的位置没有跟踪的问题
+
+* 打印log定位问题到det > threshold这个条件将target给过滤掉
+* 将条件改为isnan
 
 
 
@@ -2144,6 +2159,11 @@ int main()
 
 
 
+#### 旋转平移矩阵
+
+* 其中dx,dy为target的位置相对于起始点位置的差
+* 旋转平移矩阵*起始点坐标 = target目标的位置
+
 
 
 #### 相机参数
@@ -2516,6 +2536,12 @@ else:
 
 ![Snipaste_2023-12-26_22-01-54](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-26_22-01-54.png)
 
+#### EfficientNet
+
+* EfficientNet是一种高效的卷积神经网络架构，由Google Brain团队在2019年提出。它通过使用复合缩放方法来同时调整网络的深度、宽度和分辨率，以获得更好的性能和计算效率。
+
+
+
 
 
 #### Sigmod激活函数
@@ -2565,6 +2591,57 @@ Z_k-H\cdot \hat X^{-}_k
 $$
 
 * [卡尔曼滤波-卡尔曼滤波全篇讲解-CSDN博客](https://blog.csdn.net/weixin_43976737/article/details/119704221?spm=1001.2014.3001.5506) 
+
+
+
+#### 目标检测中的损失量计算
+
+![Snipaste_2023-12-27_21-33-42](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-27_21-33-42.png)
+
+* 其中y_hat是神经网络输出的结果，y是标签的结果
+
+
+
+#### 目标检测中的滑动窗口
+
+* 先训练一个能够检测是否为车辆的判别
+* 然后逐个遍历
+
+
+
+#### 全连接层转换为卷积层实现滑动窗口
+
+![Snipaste_2023-12-27_21-54-20](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-27_21-54-20.png)
+
+![Snipaste_2023-12-27_22-02-36](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2023-12-27_22-02-36.png)
+
+
+
+#### yolo算法
+
+* 将图像划分成网格
+* 将之前的检测算法应用于网格之中
+* 网格输出
+
+![Snipaste_2024-01-02_20-21-52](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2024-01-02_20-21-52.png)
+
+
+
+#### 非极大值抑制NMS
+
+* 算法可能对同一个目标重复检测
+* 找到置信度最高的检测框，将其他与这个检测框有较高IoU的检测框进行抑制输出
+
+![Snipaste_2024-01-02_20-37-33](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2024-01-02_20-37-33.png)
+
+
+
+#### AnchorBox
+
+* 对于一个网格需要输出多个检测目标，则需要不同形状的anchorbox
+* 然后比较哪个anchorbox的IoU最高
+
+![Snipaste_2024-01-02_20-42-06](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2024-01-02_20-42-06.png)
 
 
 
@@ -2749,6 +2826,8 @@ $$
 参考链接：
 
 * [卡尔曼滤波好文分享以及重点内容提取第四弹——IMM交互多模型 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/621375776) 
+
+
 
 #### 概率论
 
