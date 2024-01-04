@@ -1192,6 +1192,39 @@ roslaunch lidar_point_pillars lidar_point_pillars.launch pfe_onnx_file:=/usr/fil
 
 
 
+#### Nvidia驱动问题
+
+**问题描述：**
+
+输入Nvidia-smi显示报错NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.这种情况多数是驱动不匹配
+
+**解决方法:**
+
+```shell
+#方法一
+sudo apt-get remove --purge nvidia*  
+sudo apt autoremove
+sudo gedit /etc/modprobe.d/blacklist.conf 或者(blacklist-nouveau.conf)
+在文件末尾添加：
+blacklist nouveau
+options nouveau modeset=0
+更换不同的源文件，在附加更新中选择不同的驱动版本
+reboot
+#方法二
+检查主板的security boot是否设置为disable，发现解决问题
+#方法三
+进入英伟达官网下载自己手动安装驱动
+
+```
+
+[【超详细】【ubunbu 22.04】 手把手教你安装nvidia驱动，有手就行，隔壁家的老太太都能安装_ubuntu安装nvidia显卡驱动-CSDN博客](https://blog.csdn.net/huiyoooo/article/details/128015155?spm=1001.2014.3001.5506) 
+
+[【Ubuntu 20.04安装和深度学习环境搭建 4090显卡】_ubuntu20.04安装40系显卡驱动-CSDN博客](https://blog.csdn.net/qq_43775794/article/details/131770933?spm=1001.2014.3001.5506) 
+
+[错误 NVIDIA-SMI has failed because it couldn’t communicate with the NVIDIA driver. 解决方案-腾讯云开发者社区-腾讯云 (tencent.com)](https://cloud.tencent.com/developer/article/2067457) 
+
+
+
 #### 点云标注annotate使用
 
 ```shell
