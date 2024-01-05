@@ -1225,6 +1225,23 @@ reboot
 
 
 
+#### cuda和cudnn安装
+
+* [Ubuntu20.04下CUDA、cuDNN的详细安装与配置过程（图文）_ubuntu cudnn安装-CSDN博客](https://blog.csdn.net/weixin_37926734/article/details/123033286?ops_request_misc=&request_id=&biz_id=102&utm_term=ubuntu%20%E5%AE%89%E8%A3%85cuda%E5%92%8Ccudnn&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-3-123033286.142^v99^pc_search_result_base9&spm=1018.2226.3001.4187) 
+* [Linux/Ubuntu系统如何安装cudnn？（适用于所有40系显卡 4090 4080 4070）_4090如何使用cudnn提速-CSDN博客](https://blog.csdn.net/weixin_45941288/article/details/129787559) 
+
+
+
+#### TensorRT安装
+
+* [记ubuntu18.04安装使用TensorRT_ubantu安装tensorrt18.4的保姆级教程-CSDN博客](https://blog.csdn.net/laizi_laizi/article/details/121567609) 
+* 安装在配置的虚拟环境
+* 出现libnvinfer.so, libnvinfer_plugin.so: cannot open shared object file 问题
+* [Ubuntu22.04 下配置CUDA、cudnn和TensorRT环境_importerror: libnvinfer.so.8: cannot open shared o-CSDN博客](https://blog.csdn.net/weixin_60864335/article/details/126671341?spm=1001.2014.3001.5506) 
+* [配置cuda和cudnn出现 libcudnn.so.8 is not a symbolic link问题_symbol _zn15tracebackloggerc1epkc version libcudnn-CSDN博客](https://blog.csdn.net/weixin_44609958/article/details/134349499) 
+
+
+
 #### 点云标注annotate使用
 
 ```shell
@@ -2675,6 +2692,12 @@ $$
 * 然后比较哪个anchorbox的IoU最高
 
 ![Snipaste_2024-01-02_20-42-06](D:\xiaoxin_Pro16\桌面\文章图片\Snipaste_2024-01-02_20-42-06.png)
+
+
+
+#### 模型部署
+
+* [算法面试高频知识点：模型部署总结_牛客网 (nowcoder.com)](https://www.nowcoder.com/discuss/390262828702216192) 
 
 
 
