@@ -1343,6 +1343,20 @@ include(CPack) # 包含CPack模块
 
 
 
+#### ubuntu20.04安装libgtk-3遇到的问题
+
+* 解决方法：更换源，换为aliyun
+
+
+
+#### opencv contrib cmake编译时下载文件出错
+
+* 解决方法：将cmake中的download换为国内
+* [opencv contrib cmake编译时下载文件出错_cmake下载失败-CSDN博客](https://blog.csdn.net/qq_41061370/article/details/129178809?spm=1001.2014.3001.5506) 
+* 第二个解决办法就是将CMakeLists里面要下载的文件下载下来，并且重新修改目录
+
+
+
 #### ROS通信方式
 
 1. 话题通信
