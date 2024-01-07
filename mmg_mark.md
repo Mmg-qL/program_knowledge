@@ -1337,6 +1337,12 @@ include(CPack) # 包含CPack模块
 
 
 
+#### opencv 4.6安装配置
+
+[ubuntu下opencv4.6.0环境安装编译_prefix=/usr/local exec_prefix=${prefix} includedir-CSDN博客](https://blog.csdn.net/gentleman1358/article/details/126955032) 
+
+
+
 #### ROS通信方式
 
 1. 话题通信
