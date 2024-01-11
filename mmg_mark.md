@@ -743,6 +743,47 @@ void test01(){
 
 
 
+#### std::transform
+
+* api
+
+```c++
+template <class InputIt, class OutputIt, class UnaryOperation>
+OutputIt transform(InputIt first1, InputIt last1, OutputIt d_first, UnaryOperation unary_op);
+//first1和last1是输入容器中的迭代器范围，表示要转换的元素范围。
+//d_first是输出容器中的迭代器，表示结果要存储的位置。
+//unary_op是一个一元函数对象（可调用对象），用于定义转换操作。
+```
+
+* 用法
+
+```c++
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+int main() {
+    std::vector<int> input = {1, 2, 3, 4, 5};
+    std::vector<int> output(input.size());
+
+    std::transform(input.begin(), input.end(), output.begin(), [](int x) {
+        return x * x;
+    });
+
+    // 输出转换后的结果
+    for (const auto& value : output) {
+        std::cout << value << " ";
+    }
+    std::cout << std::endl;
+
+    return 0;
+}
+```
+
+
+
+
+
 #### C语言中的struct结构体
 
 1. 字节对齐
@@ -1380,9 +1421,10 @@ include(CPack) # 包含CPack模块
 
 launch文件
 
-> * node pkg : 对应功能包的名称
-> * type：节点对应的可执行文件名
+> * node pkg : 对应功能包的名称，cmake中project名字
+> * type：cmake add_executable中节点对应的可执行文件名
 > * name：运行时显示的节点名称
+> * package.xml中的project名字必须和cmake中project名字一样，否则会报错找不到包
 
 
 
@@ -2226,6 +2268,51 @@ int main()
 }
 
 ```
+
+
+
+####cv::putText
+
+* 用于在图像上绘制文本 
+* API
+
+```c++
+void cv::putText(cv::InputOutputArray img, const cv::String& text, cv::Point org, int fontFace, double fontScale, cv::Scalar color, int thickness = 1, int lineType = LINE_8, bool bottomLeftOrigin = false);
+
+/*
+img：输入输出参数，表示要绘制文本的图像。
+text：要绘制的文本字符串。
+org：文本字符串的起始位置，即左下角的坐标。
+fontFace：字体类型，可以使用预定义的常量，如cv::FONT_HERSHEY_SIMPLEX、cv::FONT_HERSHEY_PLAIN等，也可以使用自定义字体。
+fontScale：字体缩放因子，控制文本大小。
+color：文本颜色，以cv::Scalar表示，例如cv::Scalar(255, 0, 0)表示蓝色。
+thickness：文本线条的粗细，负值表示填充文本。
+lineType：线条类型，可以指定为cv::LINE_8、cv::LINE_4等。
+bottomLeftOrigin：如果为true，则底部左侧为文本的起始位置。
+*/
+```
+
+
+
+#### cv::rectangle
+
+* 绘制矩形
+* API
+
+```c++
+void cv::rectangle(cv::InputOutputArray img, cv::Point pt1, cv::Point pt2, const cv::Scalar& color, int thickness = 1, int lineType = LINE_8, int shift = 0);
+/*
+img：输入输出参数，表示要绘制矩形的图像。
+pt1：矩形的左上角顶点坐标。
+pt2：矩形的右下角顶点坐标。
+color：矩形的颜色，以cv::Scalar表示，例如cv::Scalar(255, 0, 0)表示蓝色。
+thickness：矩形线条的粗细，负值表示填充矩形。
+lineType：线条类型，可以指定为cv::LINE_8、cv::LINE_4等。
+shift：坐标点位移（通常为0）。
+*/
+```
+
+
 
 
 
