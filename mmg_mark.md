@@ -1329,9 +1329,42 @@ include(CPack) # 包含CPack模块
 
 
 
+#### target_link_libraries和link_directories区别
+
+```shell
+1. target_link_libraries: 这个命令用于将一个或多个链接库与指定的目标进行关联。使用该命令可以将链接库与特定的目标（如可执行文件或库）相关联，告诉编译器在链接时将这些库链接到该目标中。例如:
+
+target_link_libraries(my_target PRIVATE library1 library2)
+
+将 library1 和 library2 链接到名为 my_target 的目标中。需要注意的是，这里的库名称通常是不需要前缀 lib 或后缀 .a 或 .so 的。
+
+2. link_directories: 这个命令用于指定链接器查找库文件的目录。通过 link_directories 命令，可以告诉链接器在指定的目录中搜索库文件。例如: 
+
+link_directories(/path/to/my_lib) 
+
+将 /path/to/my_lib 目录添加到链接器的搜索路径中。这样，链接器在链接时就可以找到该目录下的库文件。
+```
+
+CMake 推荐使用 target_link_libraries 命令来设置链接库，而不是直接使用 link_directories 命令。这是因为 target_link_libraries 命令更具可读性，可以明确地指定链接的目标以及所使用的库，而且它会自动处理链接库的依赖关系。而使用 link_directories 命令则需要手动管理库的链接顺序和依赖关系，容易出错。
+
+
+
 #### message::filter中的bind函数报错
 
 * 在调用 `registerCallback` 函数时，回调函数的参数顺序与 `SyncPolicyT` 的模板参数顺序匹配。根据你提供的回调函数定义，参数顺序是正确的。 
+
+
+
+#### autoware安装pcl库报错
+
+* [/usr/include/pcl-1.10/pcl/point_types.h:550:1: error: ‘plus’ is not a member of ‘pcl::traits’_/usr/include/pcl-1.10/pcl/point_types.h:691:1: err-CSDN博客](https://blog.csdn.net/weixin_44001261/article/details/123299374?ops_request_misc=&request_id=&biz_id=102&utm_term=autoware%E7%BC%96%E8%AF%91pcl%E6%8A%A5%E9%94%99plus%20is%20not&utm_medium=distribute.pc_search_result.none-task-blog-2~all~sobaiduweb~default-0-123299374.142^v99^pc_search_result_base9&spm=1018.2226.3001.4187) 
+
+
+
+#### TensorRT undefine reference to createNvOnnxParser_INTERNAL错误
+
+* cmake中没有链接nvonnxparser.so
+* 添加：target_link_libraries(${target_name} nvonnxparser)
 
 
 
